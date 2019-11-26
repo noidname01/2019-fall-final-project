@@ -5,7 +5,7 @@ $ git pull upstream master
 ```
 > * 每次要上傳自己檔案到自己的fork
 ```bash
-$ git push
+$ git push origin master
 ```
 然後送pull request
 # 2019-fall-final-project
