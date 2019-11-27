@@ -2,7 +2,8 @@ import requests
 import urllib.parse
 import shutil
 import re
-
+import os
+from time import sleep
 url = input()
 res = requests.get(url)
 res.encoding="unicode"
@@ -18,6 +19,10 @@ for i in name:
 #print(realname)
 a= urllib.parse.unquote(keys[-1], encoding='utf-8', errors='replace')
 res2 = requests.get(a, stream=True)
-with open("{}.mp4".format(realname),"wb") as f:
+with open("{}.mp3".format(realname),"wb") as f:
     shutil.copyfileobj(res2.raw,f)
-        
+sleep(2)
+if os.path.getsize("{}.mp3".format(realname))==0:
+    print("Fail")
+else:
+    print("Success")
