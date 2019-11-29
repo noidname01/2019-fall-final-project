@@ -1,5 +1,6 @@
 from selenium import webdriver
 from time import sleep
+import time
 import os
 import requests
 import re
@@ -33,9 +34,12 @@ class youtube_downloader:
     
     def urlconvert(self,url):
         return url.replace("youtube","youtubeto")
-
+    
+    def playlist_to_url(self,url):
+        pre = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",url).group()
+        return self.urlconvert(pre)
     def main(self):
-
+        a= time.time()
         while True:
             if self.single_video:
                 match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
@@ -55,21 +59,26 @@ class youtube_downloader:
                     playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
                     self.playlist_download(playlist_url)
                     break
-        sleep(3)      
+        sleep(1)      
         self.is_downloaded()
+        b = time.time()
+        print(b-a)
             
-    def single_video_download(self,url):
+    def single_video_download(self,url,isfirst=True):
             self.driver.get(url)
             sleep(2)
             #print(requests.get(url).text)
-            self.driver.switch_to.frame("IframeChooseDefault")
-            self.driver.find_element_by_id("MP3Format").click()
+            if isfirst:
+                self.driver.switch_to.frame("IframeChooseDefault")
+                self.driver.find_element_by_id("MP3Format").click()
+            
             #driver.find_element_by_id("DownloadMP3_text").click()
             
-    def playlist_download(self,url):
+    def playlist_download(self,url,choose_lst=[5,7,9]): #choose_lst contain urls that users choose to download
             self.driver.get(url)
-            sleep(2)
+            sleep(1)
             self.get_playlist_info(url)
+            self.choose_download(choose_lst)
             
     def get_playlist_info(self,url):
             self.playlist_title = ""
@@ -114,9 +123,14 @@ class youtube_downloader:
                         count+=1
                 #print(count)
             #print(len(self.playlist_thumbnails_source))
-            #print(len(self.playlist_urls))
+            #print(self.playlist_urls)
             #print(len(self.playlist_video_titles))
-                
+    
+    def choose_download(self,lst):
+        for index in range(len(lst)):
+            url = self.playlist_to_url(self.playlist_urls[lst[index]])
+            self.single_video_download(url,True if index==0 else False)
+            sleep(1)            
             
     def filenumcounter(self,path):
         current_path_tree = os.walk(path)
