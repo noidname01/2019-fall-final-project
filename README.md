@@ -1,4 +1,6 @@
+# 2019-fall-final-project
 ## 注意
+## 請勿連上ntu-peap或學校任何網路
 > * 每次要更新自己本地檔案
 ```bash
 $ git pull upstream master
@@ -8,7 +10,7 @@ $ git pull upstream master
 $ git push origin master
 ```
 然後送pull request
-# 2019-fall-final-project
+
 ## 2019/11/20 - 2019/11/24
 決定主題
 ## 2019/11/25 - 2019/11/30
