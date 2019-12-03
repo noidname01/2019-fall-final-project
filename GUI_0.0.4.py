@@ -146,10 +146,10 @@ class youtube_downloader:
     def is_downloaded(self):
         current_filenum = self.filenumcounter(self.saveDirectory)
         if current_filenum > self.filenum :
-            GUI.Showinfo(0)
+            return True
             #print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
         else:
-            GUI.Showinfo(1)
+            return False
             #print("Download fail, maybe try again later")
         
 #url=input()
@@ -179,9 +179,10 @@ class GUI:
         
     def Download_video(self):
         youtube_downloader(self.URL.get(), True, False)
+        self.Showinfo()
         
-    def Showinfo(self, status):
-        if status == 0:
+    def Showinfo(self):
+        if youtube_downloader.is_downloaded:
             tkinter.messagebox.showinfo("Status", "Download Success, please waiting for download")
         else:
             tkinter.messagebox.showinfo("Status", "Download fail, maybe try again later")
