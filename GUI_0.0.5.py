@@ -28,7 +28,7 @@ class youtube_downloader:
                     
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         options.add_experimental_option('prefs', prefs)
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)
@@ -161,11 +161,14 @@ class GUI:
     def __init__(self):
         window = Tk()
         window.title("Youtube Video Downloader")
+        window.geometry("600x700")
         
         frame1 = Frame(window)
         frame1.pack()
-        self.label = Label(frame1, text = "paste your URL below")
-        self.label.pack()
+        self.labeltext = StringVar()
+        self.labeltext.set("paste your URL below")
+        self.label1 = Label(frame1, textvariable = self.labeltext)
+        self.label1.pack()
         
         frame2 = Frame(window)
         frame2.pack()
@@ -175,15 +178,29 @@ class GUI:
         entry.grid(row = 1, column = 1)
         btDownload.grid(row = 1, column = 2)
         
+        frame3 = Frame(window)
+        frame3.pack()
+        label2 = Label(frame3, text = "Choose URL type: ")
+        self.vtype = IntVar()
+        rbtSingle = Radiobutton(frame3, text = "Single Video", variable = self.vtype, value = 1)
+        rbtPlaylist = Radiobutton(frame3, text = "Playlist", variable = self.vtype, value = 2)
+        label2.grid(row = 1, column = 1)
+        rbtSingle.grid(row = 1, column = 2)
+        rbtPlaylist.grid(row = 1, column = 3)
+        
         window.mainloop()
         
     def Download_video(self):
-        youtube_downloader(self.URL.get(), True, False)
+        self.labeltext.set("Download processing...")
+        if self.vtype.get() == 1:
+            youtube_downloader(self.URL.get(), True, False)
+        else:
+            youtube_downloader(self.URL.get(), False, True)
         self.Showinfo()
         
     def Showinfo(self):
         if youtube_downloader.is_downloaded:
-            tkinter.messagebox.showinfo("Status", "Download Success, please waiting for download")
+            tkinter.messagebox.showinfo("Status", "Download Success!")
         else:
-            tkinter.messagebox.showinfo("Status", "Download fail, maybe try again later")
+            tkinter.messagebox.showwarning("Status", "Download failed, please try again later")
 GUI()
