@@ -38,6 +38,7 @@ class youtube_downloader:
     def playlist_to_url(self,url):
         pre = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",url).group()
         return self.urlconvert(pre)
+    """     main program starting here   """""
     def main(self):
         a= time.time()
         while True:
@@ -59,7 +60,7 @@ class youtube_downloader:
                     playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
                     self.playlist_download(playlist_url)
                     break
-        sleep(1)      
+             
         self.is_downloaded()
         b = time.time()
         print(b-a)
@@ -122,32 +123,39 @@ class youtube_downloader:
                         self.playlist_thumbnails_source.append(thumbnail_source)
                         count+=1
                 #print(count)
-            #print(len(self.playlist_thumbnails_source))
+            #print(self.playlist_thumbnails_source)
             #print(self.playlist_urls)
             #print(len(self.playlist_video_titles))
-    
+            self.playlist_information = []
+            for i in range(self.playlist_video_number):
+                self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
+                
+            #print(self.playlist_information)
     def choose_download(self,lst):
         for index in range(len(lst)):
             url = self.playlist_to_url(self.playlist_urls[lst[index]])
-            self.single_video_download(url,True if index==0 else False)
+            self.single_video_download(url,True if index == 0 else False)
             sleep(1)            
             
     def filenumcounter(self,path):
         current_path_tree = os.walk(path)
         count=0
         for file in current_path_tree:
-            count+=len(file[2])
+            count += len(file[2])
         
         return count
     
     def is_downloaded(self):
-        current_filenum = self.filenumcounter(self.saveDirectory)
-        if current_filenum > self.filenum :
-            print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
-        else:
-            print("Download fail, maybe try again later")
+        while True:
+            current_filenum = self.filenumcounter(self.saveDirectory)
+            if current_filenum > self.filenum :
+                print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
+                break
+            else:
+                print("Downloading ...")
+                sleep(1)
         
 url=input()
 youtube_downloader(url,False,True)
-#https://www.youtube.com/watch?v=iXjSxAwVPhY&list=RDiXjSxAwVPhY&start_radio=1
+#https://www.youtube.com/watch?v=iseXjSxAwVPhY&list=RDiXjSxAwVPhY&start_radio=1
 #https://www.youtube.com/watch?v=-P_ZyHiWRxs&list=PLnVSVW7VxYmKINpF7_QYJRM2g0v7I8hs6&index=2&t=0s&fbclid=IwAR2m6bnY8-H2yC_734W6Lij3MtlTrmsxBgpbord2lhzvMmk2ysZSuXcHXIo
