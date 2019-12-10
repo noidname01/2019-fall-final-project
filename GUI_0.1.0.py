@@ -44,25 +44,30 @@ class youtube_downloader:
         return self.urlconvert(pre)
     def main(self):
         a= time.time()
-        while True:
-            if self.single_video:
-                match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
-                if match_url==None:
-                    print("Invalid url, please try again.")
-                else:
-                    url = match_url.group()
-                    url = self.urlconvert(url)
-                    self.single_video_download(url)
-                    break
+        valid = True
+        if self.single_video:
+            match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
+            if match_url==None:
+                print("Invalid url, please try again.")
+                valid = False
                     
-            elif self.playlist:
-                match_url = re.match(r"(https?:\/\/www\.youtube\.com).*&?(list=.*)",self.url)
-                if match_url==None:
-                    print("Invalid url or this url doesn't from a playlist, please try again.")
-                else:
-                    playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
-                    self.playlist_download(playlist_url)
-                    break
+            else:
+                url = match_url.group()
+                url = self.urlconvert(url)
+                self.single_video_download(url)
+        
+                    
+        elif self.playlist:
+            match_url = re.match(r"(https?:\/\/www\.youtube\.com).*&?(list=.*)",self.url)
+            if match_url==None:
+                print("Invalid url or this url doesn't from a playlist, please try again.")
+                valid = False
+                    
+            else:
+                playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
+                self.playlist_download(playlist_url)
+                
+        
         sleep(1)      
         self.is_downloaded()
         b = time.time()
@@ -197,13 +202,13 @@ class Downloader_GUI:
     def Download_video(self):
         #self.labeltext.set("Download processing...")
         if self.vtype.get() == 1:
-            youtube_downloader(self.URL.get(), True, False)
+            self.ytd = youtube_downloader(self.URL.get(), True, False)
         else:
-            youtube_downloader(self.URL.get(), False, True)
+            self.ytd = youtube_downloader(self.URL.get(), False, True)
         self.Showinfo()
         
     def Showinfo(self):
-        if youtube_downloader.is_downloaded:
+        if self.ytd.is_downloaded():
             tkinter.messagebox.showinfo("Status", "Download Success!")
         else:
             tkinter.messagebox.showwarning("Status", "Download failed, please try again later")
