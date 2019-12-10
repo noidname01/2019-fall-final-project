@@ -8,6 +8,7 @@ import os
 import requests
 import re
 from bs4 import BeautifulSoup
+from pygame import mixer
 
 class youtube_downloader:
     def __init__(self,url,single_video,playlist):
@@ -15,7 +16,7 @@ class youtube_downloader:
         self.single_video = single_video
         self.playlist = playlist
         self.saveDirectory=os.getcwd()
-        self.filenum = self.filenumcounter(self.saveDirectory)
+        self.filenum = self.filenumcounter(self.saveDirectory+"\\downloads")
         
         #chrome options config    
         prefs = {
@@ -23,12 +24,12 @@ class youtube_downloader:
                     {
                         'notifications':2    
                     },
-                'download.default_directory':self.saveDirectory
+                'download.default_directory':self.saveDirectory+"\\downloads"
                 }
                     
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_experimental_option('prefs', prefs)
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)
@@ -144,7 +145,7 @@ class youtube_downloader:
         return count
     
     def is_downloaded(self):
-        current_filenum = self.filenumcounter(self.saveDirectory)
+        current_filenum = self.filenumcounter(self.saveDirectory+"\\downloads")
         if current_filenum > self.filenum :
             return True
             #print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
