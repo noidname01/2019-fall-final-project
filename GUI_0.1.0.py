@@ -68,7 +68,7 @@ class youtube_downloader:
                 self.playlist_download(playlist_url)
                 
         
-        sleep(1)      
+        sleep(3)      
         self.is_downloaded()
         b = time.time()
         print(b-a)
@@ -142,10 +142,8 @@ class youtube_downloader:
             sleep(1)            
             
     def filenumcounter(self,path):
-        current_path_tree = os.walk(path)
-        count=0
-        for file in current_path_tree:
-            count+=len(file[2])
+        lst = os.listdir(path)
+        count=len(lst)
         
         return count
     
@@ -311,15 +309,13 @@ class Player_GUI:
         self.frame1 = Frame(self.window)
         self.frame1.pack()
         
-        file_tree = os.walk(self.cur_path)
+        files = os.listdir(self.cur_path)
         #print(file_tree)
-        for i,j,files in file_tree:
-            self.filelist = files
-        
+        self.filelist = []
         print(self.filelist)
     
-        for file_index in range(len(self.filelist)):
-            self.filelist[file_index] = 'downloads\\'+ self.filelist[file_index]
+        for file_index in range(len(files)):
+            self.filelist.append('downloads\\'+ files[file_index])
             
         self.original_filelist = self.filelist+[]
         #print(self.filelist)

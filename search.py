@@ -30,7 +30,7 @@ class Search:
         self.driver.find_element_by_xpath("//yt-icon[@class='style-scope ytd-toggle-button-renderer']").click()
         self.driver.find_element_by_xpath("//div[@title='按觀看次數排序']").click()
         
-    def information_collector(self):
+    def information_collector(self,):
         self.search_result_video_number = 20
         self.search_result_urls = []
         self.search_result_video_titles = [] 
