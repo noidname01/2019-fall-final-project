@@ -25,6 +25,7 @@ $ git push origin master
 > * brianho90 : 設計GUI介面，研究tkinter動畫
 ## 2019/12/15 - 2019/12/21
 分工:
+> * common: 音G資料查詢(套件使用,顯示...)
 > * noidname01: is_download改進, 進度條顯示, player function
 > * kk1119737: search,playlist顯示, GUI圖片放置
 > * brianho90: GUI圖片大小調整, 製作遊戲(音G介面)
