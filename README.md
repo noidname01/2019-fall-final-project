@@ -1,8 +1,6 @@
 # 2019-fall-final-project
-## 12/10-12/11 中途Demo
 ## 12/30-12/31 最終Demo
 ## 注意
-## 請勿連上ntu-peap或學校任何網路
 > * 每次要更新自己本地檔案
 ```bash
 $ git pull upstream master
@@ -24,6 +22,11 @@ $ git push origin master
 > * common : 構思中途demo PPT
 > * noidname01: 關鍵字搜尋功能, 列表、搜尋結果呈現
 > * kk1119737: 研究GUI分頁及其他功能
-> * brian90 : 設計GUI介面，研究tkinter動畫
+> * brianho90 : 設計GUI介面，研究tkinter動畫
+## 2019/12/15 - 2019/12/21
+分工:
+> * noidname01: is_download改進, 進度條顯示, player function
+> * kk1119737: search,playlist顯示, GUI圖片放置
+> * brianho90: GUI圖片大小調整, 製作遊戲(音G介面)
 
-<h1 style="text-align:center">大家加油~~</h1>
+<h1 style="text-align:center">大家加油~~ 剩幾個禮拜大一上就過了(;´༎ຶД༎ຶ`)</h1>
