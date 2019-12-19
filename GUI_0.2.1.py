@@ -328,7 +328,7 @@ class Player_GUI:
         self.window.geometry("960x720")
         self.window.title("mp3 player")
         self.window.resizable(False,False)
-        self.window.configure(background = "#367B34")
+        #self.window.configure(background = "#367B34")
         
         self.play_png = photoconverter(self.button_src+"\\play.png",144,147)
         self.pause_png = photoconverter(self.button_src+"\\pause.png",150,150)
@@ -339,7 +339,7 @@ class Player_GUI:
         self.previous_song_png = photoconverter(self.button_src+"\\previous_song.png",210,200)
         self.next_song_png = photoconverter(self.button_src+"\\next_song.png",125,131)
         self.nowplaying_png = photoconverter(self.button_src+"\\title.png",957,228)
-    
+        self.back_png = photoconverter(self.button_src+"\\back.png",369,295)
         
         self.player_background = photoconverter(self.button_src+"\\background.png",1440,1080)
         
@@ -347,21 +347,13 @@ class Player_GUI:
         self.background.pack(fill= "both" ,expand = True)
         self.background.create_image(480,360, image = self.player_background)
         
-        file_tree = os.walk(self.cur_path)
-        #print(file_tree)
-        for i,j,files in file_tree:
-            self.filelist = files
-        
-        print(self.filelist)
-    
-        for file_index in range(len(self.filelist)):
-            self.filelist[file_index] = 'downloads\\'+ self.filelist[file_index]
-            
-        self.playlist = self.filelist.copy()
+        files = os.listdir(self.cur_path)
+        self.filelist = ['downloads\\'+x for x in files]
+        self.playlist = [x for x in self.filelist]
         
         self.label_text = StringVar()
-        
         self.volume = 30
+        
         self.button1 = Button(self.background, image = self.pause_png , command = self.pause,  relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
         self.background.create_window(240,612, window = self.button1)
         self.button2 = Button(self.background, image = self.not_loop_play_png , command = self.loop_play, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
@@ -376,7 +368,8 @@ class Player_GUI:
         self.nowplaying_label = Label(self.background,textvariable = self.label_text, bg = "#FFFFFF")
         self.nowplaying_label.config(font=("Arial", 16),width = 40)
         self.background.create_window(330,100,window = self.nowplaying_label )
-
+        self.back_button = Button(self.background, image = self.back_png, command = self.Goback, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(835,410,window = self.back_button)
         self.valueBar = Scale(self.background,command = self.set_volume, from_= 100 , to = 0 , orient = "vertical", bg = "#FFFFFF", bd= 0 ,highlightthickness = 0 ,troughcolor="#000000", sliderrelief=SUNKEN, showvalue =0 )
         self.background.create_window(850,600,window = self.valueBar)
         self.valueBar.configure(width = 20)
@@ -413,24 +406,7 @@ class Player_GUI:
             self.count = 0
         else:
             self.count += 1
-    
-    def random_play(self):
-        if not self.israndom_play:
             
-            random.shuffle(self.playlist)
-            self.nowplaying = self.nowplaying.replace(".mp3","")
-            self.label_text.set(self.nowplaying.replace("downloads\\",""))
-            self.israndom_play = True
-            print(self.playlist)
-            
-        else:
-            self.playlist = self.filelist
-            print(self.filelist)
-            self.count = self.playlist.index(self.nowplaying+".mp3")
-            self.israndom_play = False
-        
-        self.button3.configure(image = self.random_play_png if self.israndom_play else self.not_random_play_png)
-        
     def pause(self):
         if self.is_next_song:
             self.is_next_song = False
@@ -443,10 +419,44 @@ class Player_GUI:
             mixer.music.unpause()
             self.ispause = False
             
-            
         self.button1.configure(image = self.play_png if self.ispause else self.pause_png)
-        
-        
+            
+    def random_play(self):
+        if not self.israndom_play:
+            if not self.isloop_play:
+                random.shuffle(self.playlist)
+                self.randomplaylist = [x for x in self.playlist]
+                self.nowplaying = self.nowplaying.replace(".mp3","")
+                self.label_text.set(self.nowplaying.replace("downloads\\",""))
+                self.israndom_play = True
+            else:
+                self.playlist = self.loopplaylist
+                self.israndom_play = True
+        else:
+            if self.isloop_play:
+                self.playlist = self.loopplaylist
+                self.israndom_play = False
+            else:
+                self.playlist = [x for x in self.filelist]
+                self.count = self.playlist.index(self.nowplaying+".mp3")
+                self.israndom_play = False
+        self.button3.configure(image = self.random_play_png if self.israndom_play else self.not_random_play_png)
+    
+    def loop_play(self):
+        if self.isloop_play and not self.israndom_play:
+            self.playlist = [x for x in self.filelist]
+            self.count = self.playlist.index(self.nowplaying+".mp3")
+            self.isloop_play = False
+        elif self.isloop_play and self.israndom_play:
+            self.playlist = self.randomplaylist
+            self.count = self.playlist.index(self.nowplaying+".mp3")
+            self.isloop_play = False
+        else:
+            self.loopplaylist = [self.nowplaying+".mp3"]
+            self.playlist = self.loopplaylist
+            self.isloop_play = True
+        self.button2.configure(image = self.loop_play_png if self.isloop_play else self.not_loop_play_png)   
+    
     def next_song(self):
         self.ispause = False
         self.button1.configure(image = self.play_png if self.ispause else self.pause_png)
@@ -468,18 +478,7 @@ class Player_GUI:
         self.nowplaying = self.playlist[self.count]
         self.nowplaying = self.nowplaying.replace(".mp3","")
         self.label_text.set(self.nowplaying.replace("downloads\\",""))
-        
-    def loop_play(self):
-        if self.isloop_play:
-            self.playlist = self.filelist
-            self.count = self.playlist.index(self.nowplaying+".mp3")
-            self.isloop_play = False
-        else:
-            self.playlist = [self.nowplaying+".mp3"]
-            self.isloop_play = True
-        
-        self.button2.configure(image = self.loop_play_png if self.isloop_play else self.not_loop_play_png)
-        
+          
     def set_volume(self,volume):
         mixer.music.set_volume(int(volume)/100)
         
@@ -495,8 +494,8 @@ class Player_GUI:
             sleep(0.25)
         
     def Goback(self):
-        self.frame0.destroy()
-        self.frame1.destroy()
+        self.background.destroy()
+        mixer.music.stop()
         Main_GUI(self.window)
         
 
