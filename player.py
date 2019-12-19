@@ -8,8 +8,20 @@ import threading
 import sys
 from time import sleep
 
-class Music_Player:
-    def __init__(self):
+def photoconverter(src,x = None,y = None):
+        photo = Image.open(src)
+        if x == None or y == None:
+            pass
+        else:
+            photo = photo.resize((int(2*x/3),int(2*y/3)))
+        photo = ImageTk.PhotoImage(photo)
+        
+        return photo
+class Player_GUI:
+   
+    def __init__(self, master = None):
+        import threading
+        import random
         self.cur_path = os.getcwd()+'\\downloads'
         self.button_src = os.getcwd()+'\\button'
         self.filelist = []
@@ -19,84 +31,72 @@ class Music_Player:
         self.isloop_play = False
         self.count = 0
         self.is_next_song = False
-        
         self.israndom_play = False
         self.nowplaying = str()
         
         mixer.init()
-        self.window = Tk()
-        self.window.geometry("1200x800")
+        self.window = master
+        self.window.geometry("960x720")
         self.window.title("mp3 player")
-        self.window.configure(background = "#367B34")
+        self.window.resizable(False,False)
+        #self.window.configure(background = "#367B34")
         
-        self.pause_png = Image.open(self.button_src+"\\pause.png" )
-        self.pause_png = ImageTk.PhotoImage(self.pause_png)
-        self.next_song_png = Image.open(self.button_src+"\\next_song.png")
-        self.next_song_png = ImageTk.PhotoImage(self.next_song_png)
-        self.previous_song_png = Image.open(self.button_src+"\\previous_song.png")
-        self.previous_song_png = ImageTk.PhotoImage(self.previous_song_png)
-        self.play_png = Image.open(self.button_src+"\\play.png")
-        self.play_png = ImageTk.PhotoImage(self.play_png)
-        self.loop_play_png = Image.open(self.button_src+"\\loop_play.png" )
-        self.loop_play_png = ImageTk.PhotoImage(self.loop_play_png)
-        self.random_play_png = Image.open(self.button_src+"\\random_play.png" )
-        self.random_play_png = ImageTk.PhotoImage(self.random_play_png)
+        self.play_png = photoconverter(self.button_src+"\\play.png",144,147)
+        self.pause_png = photoconverter(self.button_src+"\\pause.png",150,150)
+        self.not_loop_play_png = photoconverter(self.button_src+"\\not_loop.png",195,160)
+        self.loop_play_png = photoconverter(self.button_src+"\\is_loop.png",195,160)
+        self.not_random_play_png = photoconverter(self.button_src+"\\not_random.png",194,185)
+        self.random_play_png = photoconverter(self.button_src+"\\is_random.png",194,185)
+        self.previous_song_png = photoconverter(self.button_src+"\\previous_song.png",210,200)
+        self.next_song_png = photoconverter(self.button_src+"\\next_song.png",125,131)
+        self.nowplaying_png = photoconverter(self.button_src+"\\title.png",957,228)
+        self.back_png = photoconverter(self.button_src+"\\back.png",369,295)
+        self.slider_png = photoconverter(self.button_src+"\\volume_lever.png",99,54)
+        self.player_background = photoconverter(self.button_src+"\\background.png",1440,1080)
         
-        frame1 = Frame(self.window, bg="#367B34")
-        frame1.pack()
+        self.background = Canvas(self.window, width = 960, height = 960)
+        self.background.pack(fill= "both" ,expand = True)
+        self.background.create_image(480,360, image = self.player_background)
         
-        file_tree = os.walk(self.cur_path)
-        #print(file_tree)
-        for i,j,files in file_tree:
-            self.filelist = files
-        
-        print(self.filelist)
-    
-        for file_index in range(len(self.filelist)):
-            self.filelist[file_index] = 'downloads\\'+ self.filelist[file_index]
-            
-        self.playlist = self.filelist+[]
-        #print(self.filelist)
-        
-        """self.pause_text = StringVar()
-        self.pause_text.set("play" if self.ispause else "pause")
-        self.loop_text = StringVar()
-        self.loop_text.set("single play" if self.isloop_play else "loop play")
-        self.random_text = StringVar()
-        self.random_text.set("order play" if self.israndom_play else "random play")
-        """
+        files = os.listdir(self.cur_path)
+        self.filelist = ['downloads\\'+x for x in files]
+        self.playlist = [x for x in self.filelist]
         
         self.label_text = StringVar()
         self.volume = 30
         
+        self.button1 = Button(self.background, image = self.pause_png , command = self.pause,  relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(240,612, window = self.button1)
+        self.button2 = Button(self.background, image = self.not_loop_play_png , command = self.loop_play, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(720,565, window = self.button2)
+        self.button3 = Button(self.background, image = self.not_random_play_png , command = self.random_play, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(535,595, window = self.button3)
+        self.button4 = Button(self.background, image = self.previous_song_png , command = self.previous_song, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(90,630, window = self.button4)
+        self.button5 = Button(self.background, image = self.next_song_png, command = self.next_song, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(380,598, window = self.button5)
         
-        
-        self.button1 = Button(frame1, image = self.pause_png  , command = self.pause, bg="#367B34")
-        self.button1.grid(row = 0, column = 0, padx = 5, pady = 5)
-        button2 = Button(frame1, image = self.loop_play_png , command = self.loop_play, bg="#367B34")
-        button2.grid(row = 0, column = 1, padx = 5, pady = 5)
-        button3 = Button(frame1, image = self.random_play_png , command = self.random_play, bg="#367B34")
-        button3.grid(row = 0, column = 2, padx = 5, pady = 5)
-        button4 = Button(frame1, image = self.next_song_png , command = self.next_song, bg="#367B34")
-        button4.grid(row = 0, column = 3, padx = 5, pady = 5)
-        button5 = Button(frame1, image = self.previous_song_png , command = self.previous_song, bg="#367B34")
-        button5.grid(row = 0, column = 4, padx = 5, pady = 5)
-        
-        frame2 = Frame(self.window, bg="#367B34")
-        frame2.pack()
-        label = Label(frame2,textvariable = self.label_text)
-        label.pack()
-        
-        frame3 = Frame(self.window, bg="#367B34")
-        frame3.pack()
-        valueBar = Scale(frame3,command = self.set_volume, from_= 0 , to = 100 , orient = "horizontal")
-        valueBar.set(self.volume)
-        valueBar.pack()
+        self.nowplaying_label = Label(self.background,textvariable = self.label_text, bg = "#FFFFFF")
+        self.nowplaying_label.config(font=("Arial", 16),width = 40)
+        self.background.create_window(330,100,window = self.nowplaying_label )
+        self.back_button = Button(self.background, image = self.back_png, command = None, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(835,410,window = self.back_button)
+        """
+        self.valueBar = Scale(self.background,command = self.set_volume, from_= 100 , to = 0 , orient = "vertical", bg = "#FFFFFF", bd= 0 ,highlightthickness = 0 ,troughcolor="#000000", sliderrelief=SUNKEN, showvalue =0 )
+        self.background.create_window(850,600,window = self.valueBar)
+        self.valueBar.configure(width = 20)
+        self.valueBar.set(self.volume)
+        """
+        self.slider_y = 680-self.volume/100*130
+        self.background.create_image(860,self.slider_y, image = self.slider_png, tags="slider")
+        self.background.bind("<B1-Motion>",self.drag)
+        self.background.bind("<ButtonRelease-1>",self.release)
         
         mixer.music.load(self.playlist[self.count])
         mixer.music.set_volume(self.volume/100)
         mixer.music.play(loops = 0)
         self.nowplaying = self.playlist[self.count]
+        self.nowplaying = self.nowplaying.replace(".mp3","")
         self.label_text.set(self.nowplaying.replace("downloads\\",""))
         
         t = threading.Thread(target = self.play)
@@ -105,8 +105,21 @@ class Music_Player:
         
         self.window.protocol("WM_DELETE_WINDOW",self.stop)
         self.window.mainloop()
-        
     
+    def drag(self,event):
+        if self.background.find_withtag("slider"):
+            if event.y_root>=550 and event.y_root<=680:
+                dy = event.y_root-self.slider_y
+                if dy>0:
+                    self.background.move("slider",0,dy)
+                else:
+                    self.background.move("slider",0,dy)
+                self.slider_y = event.y_root
+                
+    def release(self,event):
+        if self.background.find_withtag("slider"):
+            volume =(680-event.y_root)/(680-550)
+            self.set_volume(volume)
             
     def decounter(self):
         if self.count == 0 and not self.isloop_play:
@@ -123,21 +136,7 @@ class Music_Player:
             self.count = 0
         else:
             self.count += 1
-    
-    def random_play(self):
-        if not self.israndom_play:
             
-            random.shuffle(self.playlist)
-            self.label_text.set(self.nowplaying)
-            self.israndom_play = True
-            
-        else:
-            self.playlist = self.filelist
-            self.count = self.playlist.index(self.nowplaying)
-            self.israndom_play = False
-        
-        #self.random_text.set("order play" if self.israndom_play else "random play")
-        
     def pause(self):
         if self.is_next_song:
             self.is_next_song = False
@@ -145,15 +144,49 @@ class Music_Player:
         if not self.ispause:
             mixer.music.pause()
             self.ispause = True
-            self.button1.configure(image = self.play_png)
+            
         else:
             mixer.music.unpause()
             self.ispause = False
-            self.button1.configure(image = self.pause_png)
             
         self.button1.configure(image = self.play_png if self.ispause else self.pause_png)
-        
-        
+            
+    def random_play(self):
+        if not self.israndom_play:
+            if not self.isloop_play:
+                random.shuffle(self.playlist)
+                self.randomplaylist = [x for x in self.playlist]
+                self.nowplaying = self.nowplaying.replace(".mp3","")
+                self.label_text.set(self.nowplaying.replace("downloads\\",""))
+                self.israndom_play = True
+            else:
+                self.playlist = self.loopplaylist
+                self.israndom_play = True
+        else:
+            if self.isloop_play:
+                self.playlist = self.loopplaylist
+                self.israndom_play = False
+            else:
+                self.playlist = [x for x in self.filelist]
+                self.count = self.playlist.index(self.nowplaying+".mp3")
+                self.israndom_play = False
+        self.button3.configure(image = self.random_play_png if self.israndom_play else self.not_random_play_png)
+    
+    def loop_play(self):
+        if self.isloop_play and not self.israndom_play:
+            self.playlist = [x for x in self.filelist]
+            self.count = self.playlist.index(self.nowplaying+".mp3")
+            self.isloop_play = False
+        elif self.isloop_play and self.israndom_play:
+            self.playlist = self.randomplaylist
+            self.count = self.playlist.index(self.nowplaying+".mp3")
+            self.isloop_play = False
+        else:
+            self.loopplaylist = [self.nowplaying+".mp3"]
+            self.playlist = self.loopplaylist
+            self.isloop_play = True
+        self.button2.configure(image = self.loop_play_png if self.isloop_play else self.not_loop_play_png)   
+    
     def next_song(self):
         self.ispause = False
         self.button1.configure(image = self.play_png if self.ispause else self.pause_png)
@@ -162,6 +195,7 @@ class Music_Player:
         mixer.music.load(self.playlist[self.count])
         mixer.music.play(loops = 0)
         self.nowplaying = self.playlist[self.count]
+        self.nowplaying = self.nowplaying.replace(".mp3","")
         self.label_text.set(self.nowplaying.replace("downloads\\",""))
         
     def previous_song(self):
@@ -172,21 +206,11 @@ class Music_Player:
         mixer.music.load(self.playlist[self.count])
         mixer.music.play(loops = 0)
         self.nowplaying = self.playlist[self.count]
+        self.nowplaying = self.nowplaying.replace(".mp3","")
         self.label_text.set(self.nowplaying.replace("downloads\\",""))
-        
-    def loop_play(self):
-        if self.isloop_play:
-            self.playlist = self.filelist
-            self.count = self.playlist.index(self.nowplaying)
-            self.isloop_play = False
-        else:
-            self.playlist = [self.nowplaying]
-            self.isloop_play = True
-        
-        #self.loop_text.set("single play" if self.isloop_play else "loop play")
-        
+          
     def set_volume(self,volume):
-        mixer.music.set_volume(int(volume)/100)
+        mixer.music.set_volume(volume)
         
     def stop(self):
         mixer.music.stop()
@@ -199,4 +223,11 @@ class Music_Player:
                 self.next_song()
             sleep(0.25)
         
-Music_Player()
+    """def Goback(self):
+        self.background.destroy()
+        mixer.music.stop()
+        Main_GUI(self.window)
+    """    
+window = Tk()
+Player_GUI(window)
+window.mainloop()

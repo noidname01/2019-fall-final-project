@@ -340,7 +340,7 @@ class Player_GUI:
         self.next_song_png = photoconverter(self.button_src+"\\next_song.png",125,131)
         self.nowplaying_png = photoconverter(self.button_src+"\\title.png",957,228)
         self.back_png = photoconverter(self.button_src+"\\back.png",369,295)
-        
+        self.slider_png = photoconverter(self.button_src+"\\volume_lever.png",99,54)
         self.player_background = photoconverter(self.button_src+"\\background.png",1440,1080)
         
         self.background = Canvas(self.window, width = 960, height = 960)
@@ -368,13 +368,18 @@ class Player_GUI:
         self.nowplaying_label = Label(self.background,textvariable = self.label_text, bg = "#FFFFFF")
         self.nowplaying_label.config(font=("Arial", 16),width = 40)
         self.background.create_window(330,100,window = self.nowplaying_label )
-        self.back_button = Button(self.background, image = self.back_png, command = self.Goback, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.back_button = Button(self.background, image = self.back_png, command = None, relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
         self.background.create_window(835,410,window = self.back_button)
+        """
         self.valueBar = Scale(self.background,command = self.set_volume, from_= 100 , to = 0 , orient = "vertical", bg = "#FFFFFF", bd= 0 ,highlightthickness = 0 ,troughcolor="#000000", sliderrelief=SUNKEN, showvalue =0 )
         self.background.create_window(850,600,window = self.valueBar)
         self.valueBar.configure(width = 20)
         self.valueBar.set(self.volume)
-        
+        """
+        self.slider_y = 680
+        self.background.create_image(860,680, image = self.slider_png, tags="slider")
+        self.background.bind("<B1-Motion>",self.drag)
+        self.background.bind("<ButtonRelease-1>",self.release)
         
         mixer.music.load(self.playlist[self.count])
         mixer.music.set_volume(self.volume/100)
@@ -390,6 +395,20 @@ class Player_GUI:
         self.window.protocol("WM_DELETE_WINDOW",self.stop)
         self.window.mainloop()
     
+    def drag(self,event):
+        if self.background.find_withtag("slider"):
+            if event.y_root>=550 and event.y_root<=680:
+                dy = event.y_root-self.slider_y
+                if dy>0:
+                    self.background.move("slider",0,dy)
+                else:
+                    self.background.move("slider",0,dy)
+                self.slider_y+=event.y_root-self.slider_y
+                
+    def release(self,event):
+        if self.background.find_withtag("slider"):
+            volume =(680-event.y_root)/(680-550)
+            self.set_volume(volume)
             
     def decounter(self):
         if self.count == 0 and not self.isloop_play:
@@ -480,7 +499,7 @@ class Player_GUI:
         self.label_text.set(self.nowplaying.replace("downloads\\",""))
           
     def set_volume(self,volume):
-        mixer.music.set_volume(int(volume)/100)
+        mixer.music.set_volume(volume)
         
     def stop(self):
         mixer.music.stop()
