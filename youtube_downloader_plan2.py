@@ -5,6 +5,7 @@ import time
 import os
 import re
 from bs4 import BeautifulSoup
+import threading
 
 class youtube_downloader:
     def __init__(self,url,single_video,playlist):
@@ -154,12 +155,15 @@ class youtube_downloader:
                     playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
                     self.playlist_download(playlist_url)
                     break
-             
-        self.is_downloaded()
+        
+        t = threading.Thread(target = self.is_downloaded)
+        t.setDaemon(True)
+        t.start()
+        #self.is_downloaded()
         b = time.time()
         print(b-a)
         
 url=input()
-youtube_downloader(url,False,True)
+youtube_downloader(url,True,False)
 #https://www.youtube.com/watch?v=iseXjSxAwVPhY&list=RDiXjSxAwVPhY&start_radio=1
 #https://www.youtube.com/watch?v=-P_ZyHiWRxs&list=PLnVSVW7VxYmKINpF7_QYJRM2g0v7I8hs6&index=2&t=0s&fbclid=IwAR2m6bnY8-H2yC_734W6Lij3MtlTrmsxBgpbord2lhzvMmk2ysZSuXcHXIo

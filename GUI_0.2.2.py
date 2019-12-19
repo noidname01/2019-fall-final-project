@@ -46,7 +46,6 @@ class youtube_downloader:
         pre = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",url).group()
         return self.urlconvert(pre)
     def main(self):
-        a= time.time()
         valid = True
         if self.single_video:
             match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
@@ -71,11 +70,11 @@ class youtube_downloader:
                 self.playlist_download(playlist_url)
                 
         
-        sleep(3)      
-        self.is_downloaded()
-        b = time.time()
-        print(b-a)
-            
+        sleep(3)     
+        t = threading.Thread(target = self.is_downloaded)
+        t.setDaemon(True)
+        t.start()
+    
     def single_video_download(self,url,isfirst=True):
             self.driver.get(url)
             sleep(2)
@@ -153,13 +152,19 @@ class youtube_downloader:
         return count
     
     def is_downloaded(self):
-        current_filenum = self.filenumcounter(self.saveDirectory+"\\downloads")
-        if current_filenum > self.filenum :
-            return True
+        a = time.time()
+        while True:
+            current_filenum = self.filenumcounter(self.saveDirectory+"\\downloads")
+            if current_filenum > self.filenum :
+                return True
             #print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
-        else:
-            return False
+            else:
+                sleep(1)
+                
+            if time.time() - a < 5:
+                return False
             #print("Download fail, maybe try again later")
+            
         
 #url=input()
 #youtube_downloader(url,False,True)
