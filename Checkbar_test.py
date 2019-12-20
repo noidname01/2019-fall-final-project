@@ -27,6 +27,7 @@ class test_GUI:
         self.frame.pack()
         
         self.currentPath = os.getcwd()
+        print(self.currentPath)
         self.image = Image.open(self.currentPath + '\\2.png')
         self.image = ImageTk.PhotoImage(self.image)
         bt = Button(self.frame, image = self.image)

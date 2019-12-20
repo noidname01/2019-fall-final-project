@@ -164,6 +164,24 @@ class youtube_downloader:
             if time.time() - a < 5:
                 return False
             #print("Download fail, maybe try again later")
+
+    def thumbnail_downloader(self,url,title):
+        html = requests.get(url)
+        with open("src\\"+title+".gif","wb") as file:
+            file.write(html.content)
+            
+    def thumbnail_getter(self):
+        for i in range(len(self.playlist_information)):
+            url = self.playlist_information[i][2]
+            #title = self.playlist_information[i][1]
+            
+            self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
+            self.thread[i].start()
+            self.thread[i].join()
+            
+    def clear(self):
+        shutil.rmtree(self.saveDirectory+"\\src")
+        os.mkdir(self.saveDirectory+"\\src")
             
         
 #url=input()
