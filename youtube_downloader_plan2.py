@@ -1,4 +1,4 @@
-#import requests
+import requests
 from selenium import webdriver
 from time import sleep
 import time
@@ -6,6 +6,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 import threading
+import shutil
 
 class youtube_downloader:
     def __init__(self,url,single_video,playlist):
@@ -14,7 +15,7 @@ class youtube_downloader:
         self.playlist = playlist
         self.saveDirectory=os.getcwd()
         self.filenum = self.filenumcounter(self.saveDirectory+'\\downloads')
-        
+        self.thread = []
         #chrome options config    
         prefs = {
                 'profile.default_content_setting_values':
@@ -26,7 +27,7 @@ class youtube_downloader:
                     
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         options.add_experimental_option('prefs', prefs)
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)
@@ -50,11 +51,11 @@ class youtube_downloader:
             
             #driver.find_element_by_id("DownloadMP3_text").click()
             
-    def playlist_download(self,url,choose_lst=[0,1,2,5,6,9,11]): #choose_lst contain urls that users choose to download
+    def playlist_download(self,url): #choose_lst contain urls that users choose to download
             self.driver.get(url)
             sleep(1)
             self.get_playlist_info(url)
-            self.choose_download(choose_lst)
+            
             
     def get_playlist_info(self,url):
             self.playlist_title = ""
@@ -69,21 +70,34 @@ class youtube_downloader:
             
             video_num = bs.find("div",{"id":"stats"}).find("yt-formatted-string").text
             print(video_num)
-            self.playlist_video_number = int(re.findall(r"([0-9]+)",video_num)[1])
+            self.playlist_video_number = int(re.findall(r"([0-9]+)",video_num)[0])
             print(self.playlist_video_number)
             inf = bs.find_all("ytd-playlist-video-renderer")
             
+            """
             for information in inf:
                 url = information.find("a").get("href")
                 self.playlist_urls.append("https://www.youtube.com"+url)
+            """    
                 
-                video_title = information.find("span",{"id":"video-title"}).get("title")
-                self.playlist_video_titles.append(video_title)
             
             length = self.playlist_video_number
             count = 0
             while count<length:
-            
+                if count%100 == 0 and count!=0:
+                    sleep(2)
+                    bs = BeautifulSoup(self.driver.page_source,"html.parser") #update website elements
+                    inf = bs.find_all("ytd-playlist-video-renderer")
+                    
+                video_title = inf[count].find("span",{"id":"video-title"}).get("title")
+                if video_title == "[已刪除影片]" or video_title == "[私人影片]" :
+                    self.driver.execute_script("window.scrollBy(0,101)")
+                    count  += 1
+                    continue
+                
+                self.playlist_video_titles.append(video_title)
+                url = url = inf[count].find("a").get("href")
+                self.playlist_urls.append("https://www.youtube.com"+url)
                 thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
                 if thumbnail_source == None:
                     self.driver.execute_script("window.scrollBy(0,505)")
@@ -98,14 +112,16 @@ class youtube_downloader:
                     else:
                         self.playlist_thumbnails_source.append(thumbnail_source)
                         count+=1
+                
                 #print(count)
-            #print(self.playlist_thumbnails_source)
+                #print(self.playlist_thumbnails_source)
             #print(self.playlist_urls)
             #print(len(self.playlist_video_titles))
             self.playlist_information = []
-            for i in range(self.playlist_video_number):
+            for i in range(len(self.playlist_thumbnails_source)):
                 self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
-                
+            
+            self.thumbnail_getter()
             #print(self.playlist_information)
     def choose_download(self,lst):
         for index in range(len(lst)):
@@ -133,8 +149,9 @@ class youtube_downloader:
 
     def thumbnail_downloader(self,url,title):
         html = requests.get(url)
-        with open("src\\"+title+".gif","wb") as file:
+        with open("src\\"+title+".png","wb") as file:
             file.write(html.content)
+        print(title+".png Success!")
             
     def thumbnail_getter(self):
         for i in range(len(self.playlist_information)):
@@ -182,6 +199,6 @@ class youtube_downloader:
         print(b-a)
         
 url=input()
-youtube_downloader(url,True,False)
+youtube_downloader(url,False,True)
 #https://www.youtube.com/watch?v=iseXjSxAwVPhY&list=RDiXjSxAwVPhY&start_radio=1
 #https://www.youtube.com/watch?v=-P_ZyHiWRxs&list=PLnVSVW7VxYmKINpF7_QYJRM2g0v7I8hs6&index=2&t=0s&fbclid=IwAR2m6bnY8-H2yC_734W6Lij3MtlTrmsxBgpbord2lhzvMmk2ysZSuXcHXIo
