@@ -12,7 +12,7 @@ class Search:
         self.saveDirectory=os.getcwd()
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         
         self.driver = webdriver.Chrome(chromedriver,options=options)
         self.search()
@@ -26,7 +26,7 @@ class Search:
         sleep(1)
         self.driver.find_element_by_xpath("//yt-icon[@class='style-scope ytd-toggle-button-renderer']").click()
         self.driver.find_element_by_xpath("//div[@title='搜尋「視訊」']").click()
-        sleep(1)
+        sleep(2)
         self.driver.find_element_by_xpath("//yt-icon[@class='style-scope ytd-toggle-button-renderer']").click()
         self.driver.find_element_by_xpath("//div[@title='按觀看次數排序']").click()
         
