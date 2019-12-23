@@ -1,9 +1,8 @@
-import requests
-from selenium import webdriver
-from time import sleep
-import time
 import os
+from selenium import webdriver
+import requests
 import re
+from time import sleep
 from bs4 import BeautifulSoup
 import threading
 import shutil
@@ -69,17 +68,10 @@ class youtube_downloader:
             self.playlist_title = title.find("a").text
             
             video_num = bs.find("div",{"id":"stats"}).find("yt-formatted-string").text
-            print(video_num)
+            #print(video_num)
             self.playlist_video_number = int(re.findall(r"([0-9]+)",video_num)[0])
-            print(self.playlist_video_number)
+            #print(self.playlist_video_number)
             inf = bs.find_all("ytd-playlist-video-renderer")
-            
-            """
-            for information in inf:
-                url = information.find("a").get("href")
-                self.playlist_urls.append("https://www.youtube.com"+url)
-            """    
-                
             
             length = self.playlist_video_number
             count = 0
@@ -148,11 +140,16 @@ class youtube_downloader:
                 sleep(1)
 
     def thumbnail_downloader(self,url,title):
-        html = requests.get(url)
-        with open("src\\"+title+".png","wb") as file:
-            file.write(html.content)
-        print(title+".png Success!")
-            
+        import cv2
+        import numpy as np
+        #import requests
+        
+        resp = requests.get(url, stream=True).raw
+        image = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        cv2.imwrite('src\\'+title+'.png', image)
+        print(title+'.png Success!')
+        
     def thumbnail_getter(self):
         for i in range(len(self.playlist_information)):
             url = self.playlist_information[i][2]
@@ -168,7 +165,7 @@ class youtube_downloader:
                 
     """     main program starting here   """""
     def main(self):
-        a= time.time()
+        
         while True:
             if self.single_video:
                 match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
@@ -191,14 +188,9 @@ class youtube_downloader:
                     self.playlist_download(playlist_url)
                     break
         
+        '''
         t = threading.Thread(target = self.is_downloaded)
         t.setDaemon(True)
         t.start()
+        '''
         #self.is_downloaded()
-        b = time.time()
-        print(b-a)
-        
-url=input()
-youtube_downloader(url,False,True)
-#https://www.youtube.com/watch?v=iseXjSxAwVPhY&list=RDiXjSxAwVPhY&start_radio=1
-#https://www.youtube.com/watch?v=-P_ZyHiWRxs&list=PLnVSVW7VxYmKINpF7_QYJRM2g0v7I8hs6&index=2&t=0s&fbclid=IwAR2m6bnY8-H2yC_734W6Lij3MtlTrmsxBgpbord2lhzvMmk2ysZSuXcHXIo
