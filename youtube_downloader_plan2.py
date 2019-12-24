@@ -87,9 +87,14 @@ class youtube_downloader:
                     count  += 1
                     continue
                 
-                self.playlist_video_titles.append(video_title)
-                url = url = inf[count].find("a").get("href")
-                self.playlist_urls.append("https://www.youtube.com"+url)
+                if not video_title in self.playlist_video_titles:
+                    self.playlist_video_titles.append(video_title)
+                    
+                
+                url = inf[count].find("a").get("href")
+                if not url in self.playlist_urls:
+                    self.playlist_urls.append("https://www.youtube.com"+url)
+                    
                 thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
                 if thumbnail_source == None:
                     self.driver.execute_script("window.scrollBy(0,505)")
@@ -100,15 +105,15 @@ class youtube_downloader:
                 
                 else:
                     if thumbnail_source in self.playlist_thumbnails_source:
+                        count+=1
                         continue
                     else:
                         self.playlist_thumbnails_source.append(thumbnail_source)
                         count+=1
                 
-                #print(count)
                 #print(self.playlist_thumbnails_source)
             #print(self.playlist_urls)
-            #print(len(self.playlist_video_titles))
+            print(len(self.playlist_video_titles))
             self.playlist_information = []
             for i in range(len(self.playlist_thumbnails_source)):
                 self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
@@ -154,11 +159,12 @@ class youtube_downloader:
         for i in range(len(self.playlist_information)):
             url = self.playlist_information[i][2]
             #title = self.playlist_information[i][1]
-            
+            self.thumbnail_downloader(url,str(i))
+            """
             self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
             self.thread[i].start()
             self.thread[i].join()
-            
+            """
     def clear(self):
         shutil.rmtree(self.saveDirectory+"\\src")
         os.mkdir(self.saveDirectory+"\\src")

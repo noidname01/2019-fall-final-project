@@ -16,17 +16,8 @@ from time import sleep
 from bs4 import BeautifulSoup
 from PIL import Image
 from PIL import ImageTk
-lst=[]
-def photoconverter(src,x = None,y = None):
-        photo = Image.open(src)
-        if x == None or y == None:
-            pass
-        else:
-            photo = photo.resize((int(2*x/3),int(2*y/3)))
-        photo = ImageTk.PhotoImage(photo)
-        
-        return photo
-    
+from Checkbar_checkbutton import Checkbar_checkbutton
+
 class Downloader_GUI:
     def __init__(self, master):
         self.window = master
@@ -72,10 +63,14 @@ class Downloader_GUI:
         #self.labeltext.set("Download processing...")
         if self.btCheckbar.i == 0:
             self.ytd = youtube_downloader(self.URL.get(), True, False)
+            self.Showinfo()
         else:
             self.ytd = youtube_downloader(self.URL.get(), False, True)
-        self.Showinfo()
-        Playlist_results_GUI(self.window)
+            self.frame0.destroy()
+            self.frame1.destroy()
+            self.frame2.destroy()
+            self.frame3.destroy()
+            Playlist_results_GUI(self.window,self.ytd.playlist_information)
         '''if self.vtype.get() == 1:
             self.ytd = youtube_downloader(self.URL.get(), True, False)
         else:
@@ -95,37 +90,61 @@ class Downloader_GUI:
         self.frame2.destroy()
         self.frame3.destroy()
         Main_GUI(self.window)
+        
+    
 
 class Playlist_results_GUI:
-    def __init__(self, master = None):
+    def __init__(self, master = None, lst=[]):
         self.window = master
+        self.window.geometry("960x720")
+        self.window.resizable(False,False)
+        self.title = [x[1] for x in lst]
+        self.frame0 = Frame(self.window, bg='white')
+        self.frame0.pack(fill = BOTH)
+        btGoback = Button(self.frame0, text = "Go back", command = self.Goback)
+        btGoback.pack(side = LEFT)
+        btDownload = Button(self.frame0, text = "Download", command = self.Download)
+        btDownload.pack()
         
-        frame1 = Frame(self.window)
-        text = Text(frame1)
-        vsb = Scrollbar(orient="vertical", command=text.yview)
-        text.configure(yscrollcommand=vsb.set)
-        frame1.pack(fill="both",side="left")
-        vsb.pack(side="right", fill="y")
-        text.pack(fill="both", expand=True)
+        self.frame1 = Frame(self.window)
+        self.frame1.pack(fill=BOTH, expand = True)
+        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*110))
+        self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background.yview)
+        self.vsb.pack(side="right", fill="y")
+        self.background.configure(yscrollcommand=self.vsb.set)
+        self.background.pack(fill="both",side="left",expand = True)
+        
         
         self.currentPath = os.getcwd()
         self.filelist = os.listdir(self.currentPath+"\\src")
+        self.lst =[]
         self.thumbnails = []
-        for thumbnail in self.filelist:
-            image = Image.open(self.currentPath+"\\src\\" +thumbnail)
+        for i in range(len(self.filelist)):
+            image = Image.open(self.currentPath+"\\src\\"+str(i)+".png")
+            image = image.resize((200,100))
             image = ImageTk.PhotoImage(image)
             self.thumbnails.append(image)
         
         for i in range(len(self.thumbnails)):
-            b1 = Label(frame1, image = self.thumbnails[i], text = "test1", compound = "left")
-            b2 = Checkbar_checkbutton(i, False, frame1)
+            b1 = Label(self.background, image = self.thumbnails[i], text = self.title[i] , compound = "left")
+            b2 = Checkbar_checkbutton(i, False, self.lst, self.background)
             b2.configure(command = b2.ChangeStatus)
-            text.window_create("end", window = b1)
-            text.window_create("end", window = b2)
-            text.insert("end", "\n")
+            self.background.create_window(300,110*i,window = b1)
+            self.background.create_window(800,110*i, window = b2)
         
 
         self.window.mainloop()
+        
+    def Goback(self):
+        self.frame0.destroy()
+        self.frame1.destroy()
+        #self.background.destroy()
+        self.vsb.destroy()
+        self.lst.clear()
+        Downloader_GUI(self.window)
+
+    def Download(self):
+        print(self.lst)
 
 class Search_GUI:
     def __init__(self, master = None):
@@ -186,6 +205,17 @@ class Search_Result_GUI:
         self.frame0.destroy()
         self.frame1.destroy()
         Search_GUI(self.window)
+        
+
+def photoconverter(src,x = None,y = None):
+        photo = Image.open(src)
+        if x == None or y == None:
+            pass
+        else:
+            photo = photo.resize((int(2*x/3),int(2*y/3)))
+        photo = ImageTk.PhotoImage(photo)
+        
+        return photo
 
 class Player_GUI:
     
@@ -434,8 +464,9 @@ class Main_GUI:
         Player_GUI(self.window)
         
         
-class Checkbar_radiobutton:
+class Checkbar_radiobutton(Button):
     def __init__(self, container, image = None, command = None, i=0, check = False):
+        super().__init__()
         self.i = i
         self.check = check
         self.currentPath = os.getcwd()
@@ -460,8 +491,8 @@ class Checkbar_radiobutton:
             self.check = True
             self.i = 1
             
-class Checkbar_checkbutton(Button):
-    def __init__(self, i, check, *arg):
+'''class Checkbar_checkbutton(Button):
+    def __init__(self, i, check, lst, *arg):
         super().__init__(*arg)
         self.i = i
         self.check = check
@@ -469,8 +500,8 @@ class Checkbar_checkbutton(Button):
         self.image = Image.open(self.currentPath + '\\2.png')
         self.image = ImageTk.PhotoImage(self.image)
         self.configure(image = self.image)
-        """self.bt = Button(container, image = self.image, command = self.ChangeStatus)
-        self.bt.pack()"""
+        
+        self.lst = lst
         
     def ChangeStatus(self):
         if self.check:
@@ -479,7 +510,8 @@ class Checkbar_checkbutton(Button):
             self.image = ImageTk.PhotoImage(self.image)
             self.configure(image = self.image)
             self.check = False
-            lst.remove(self.i)
+            self.lst.remove(self.i)
+            #print(lst)
             
         else:
             self.currentPath = os.getcwd()
@@ -487,7 +519,9 @@ class Checkbar_checkbutton(Button):
             self.image = ImageTk.PhotoImage(self.image)
             self.configure(image = self.image)
             self.check = True
-            lst.append(self.i)
+            self.lst.append(self.i)
+            #print(lst)'''
+            
 window = Tk()
 window.configure(background='white')
 Main_GUI(window)
