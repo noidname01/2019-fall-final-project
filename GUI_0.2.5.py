@@ -16,7 +16,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from PIL import Image
 from PIL import ImageTk
-
+lst = []
 class Downloader_GUI:
     def __init__(self, master):
         self.window = master
@@ -499,7 +499,7 @@ class Checkbar_checkbutton(Button):
             lst.append(self.i)
             print(lst)
             
-lst = []
+
 window = Tk()
 window.configure(background='white')
 Main_GUI(window)
