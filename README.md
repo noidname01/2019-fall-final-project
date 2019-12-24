@@ -29,5 +29,11 @@ $ git push origin master
 > * noidname01: is_download改進, 進度條顯示, player function
 > * kk1119737: search,playlist顯示, GUI圖片放置
 > * brianho90: GUI圖片大小調整, 製作遊戲(音G介面)
+## 2019/12/22 - 2019/12/29
+分工:
+> * common: 全部整合, 測試錯誤, 製作PPT
+> * noidname01: 進度條顯示, 遊戲置入
+> * kk1119737: search,playlist顯示, GUI圖片放置
+> * brianho90: checkbutton繪製, search,playlist顯示設計
 
-<h1 style="text-align:center">大家加油~~ 剩幾個禮拜大一上就過了(;´༎ຶД༎ຶ`)</h1>
+<h1 style="text-align:center">大家加油~~ 大一上會過去，GPA會留下(;´༎ຶД༎ຶ`)</h1>
