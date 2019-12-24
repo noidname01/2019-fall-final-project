@@ -17,8 +17,27 @@ class Checkbar:
         self.currentPath = os.getcwd()
         self.image = Image.open(self.currentPath + '\\2.png')
         self.image = ImageTk.PhotoImage(self.image)
-        Button(container, image = self.image).pack()
+        self.bt = Button(container, image = self.image, command = self.ChangeStatus)
+        self.bt.pack()
         
+    def ChangeStatus(self):
+        if self.check:
+            self.currentPath = os.getcwd()
+            self.image = Image.open(self.currentPath + '\\2.png')
+            self.image = ImageTk.PhotoImage(self.image)
+            self.bt.configure(image = self.image)
+            self.check = False
+            lst.remove(self.i)
+            print(lst)
+        else:
+            self.currentPath = os.getcwd()
+            self.image = Image.open(self.currentPath + '\\1.png')
+            self.image = ImageTk.PhotoImage(self.image)
+            self.bt.configure(image = self.image)
+            self.check = True
+            lst.append(self.i)
+            print(lst)
+            
 class test_GUI:
     def __init__(self, master = None):
         self.window = master
@@ -26,13 +45,10 @@ class test_GUI:
         self.frame = Frame(self.window)
         self.frame.pack()
         
-        self.currentPath = os.getcwd()
-        print(self.currentPath)
-        self.image = Image.open(self.currentPath + '\\2.png')
-        self.image = ImageTk.PhotoImage(self.image)
-        bt = Button(self.frame, image = self.image)
-        bt.pack()
+        self.Checkbar = Checkbar(self.frame)
         
+        window.mainloop()
+        
+lst = []
 window = Tk()
 test_GUI(window)
-window.mainloop()
