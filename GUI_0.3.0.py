@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from PIL import ImageTk
 from Checkbar_checkbutton import Checkbar_checkbutton
+from search import Search
 
 class Downloader_GUI:
     def __init__(self, master):
@@ -98,7 +99,10 @@ class Playlist_results_GUI:
         self.window = master
         self.window.geometry("960x720")
         self.window.resizable(False,False)
-        self.title = [x[1] for x in lst]
+        self.playlist_information = lst
+        self.title = [x[1] for x in self.playlist_information]
+        self.ytd = youtube_downloader
+        
         self.frame0 = Frame(self.window, bg='white')
         self.frame0.pack(fill = BOTH)
         btGoback = Button(self.frame0, text = "Go back", command = self.Goback)
@@ -108,7 +112,8 @@ class Playlist_results_GUI:
         
         self.frame1 = Frame(self.window)
         self.frame1.pack(fill=BOTH, expand = True)
-        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*110))
+        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*200))
+        self.background.config(bg = '#000000')
         self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background.yview)
         self.vsb.pack(side="right", fill="y")
         self.background.configure(yscrollcommand=self.vsb.set)
@@ -116,21 +121,29 @@ class Playlist_results_GUI:
         
         
         self.currentPath = os.getcwd()
-        self.filelist = os.listdir(self.currentPath+"\\src")
-        self.lst =[]
+        self.filelist = os.listdir(self.currentPath+"\\playlist")
+        self.list_to_download =[]
         self.thumbnails = []
         for i in range(len(self.filelist)):
-            image = Image.open(self.currentPath+"\\src\\"+str(i)+".png")
-            image = image.resize((200,100))
+            image = Image.open(self.currentPath+"\\playlist\\"+str(i)+".png")
+            image = image.resize((240,180))
             image = ImageTk.PhotoImage(image)
             self.thumbnails.append(image)
-        
+    
         for i in range(len(self.thumbnails)):
-            b1 = Label(self.background, image = self.thumbnails[i], text = self.title[i] , compound = "left")
-            b2 = Checkbar_checkbutton(i, False, self.lst, self.background)
+            b0 = Label(self.background, image = self.thumbnails[i])
+            if len(self.title[i]) > 25:
+                for j in range(25,len(self.title[i])):
+                    if self.title[i][j] ==  " ":
+                        self.title[i] = self.title[i][:j+1] + "\n" + self.title[i][j+1:]
+                        break
+            b1 = Label(self.background, text = self.title[i])
+            b1.config(font = ("Arial", 16))
+            b2 = Checkbar_checkbutton(i, False, self.list_to_download, self.background)
             b2.configure(command = b2.ChangeStatus)
-            self.background.create_window(300,110*i,window = b1)
-            self.background.create_window(800,110*i, window = b2)
+            self.background.create_window(120,60+(200*i), window = b0)
+            self.background.create_window(475,60+(200*i), window = b1)
+            self.background.create_window(840,60+(200*i), window = b2)
         
 
         self.window.mainloop()
@@ -140,17 +153,39 @@ class Playlist_results_GUI:
         self.frame1.destroy()
         #self.background.destroy()
         self.vsb.destroy()
-        self.lst.clear()
+        self.list_to_download.clear()
         Downloader_GUI(self.window)
 
     def Download(self):
-        print(self.lst)
-
+        #print(self.lst)
+        for i in self.list_to_download:
+            url = self.playlist_information[i][2]
+            title = self.playlist_information[i][1]
+            self.thumbnail_downloader(url,str(i))
+        for j in self.list_to_download:
+            self.ytd(self.playlist_information[j][0], True, False)
+        self.Showinfo()
+        
+    def Showinfo(self):
+        tkinter.messagebox.showinfo("Status", "Download Success!")
+        
+    def thumbnail_downloader(self,url,title):
+        import cv2
+        import numpy as np
+        #import requests
+        
+        resp = requests.get(url, stream=True).raw
+        image = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        cv2.imwrite('thumbnails\\'+title+'.png', image)
+        print(title+'.png Success!')
+        
 class Search_GUI:
     def __init__(self, master = None):
         self.window = master
         self.window.title("Search YouTube Video(s)")
         self.window.geometry("800x500")
+        self.search = Search
         
         self.frame0 = Frame(self.window)
         self.frame0.pack(fill = BOTH)
@@ -170,11 +205,13 @@ class Search_GUI:
         entry.grid(row = 1, column = 1)
         btSearch.grid(row = 1, column = 2)
         
+        
     def Search_video(self):
         self.frame0.destroy()
         self.frame1.destroy()
         self.frame2.destroy()
-        Search_Result_GUI(self.window, self.keyword)
+        self.search = self.search(self.keyword.get())
+        Search_Result_GUI(self.window, lst = self.search.search_result)
         
     def Goback(self):
         self.frame0.destroy()
@@ -185,27 +222,88 @@ class Search_GUI:
 
 
 class Search_Result_GUI:
-    def __init__(self, master = None, keyword = ""):
+    def __init__(self, master = None, keyword = "", lst = []):
         self.window = master
         self.window.title("Search Results")
-        self.window.geometry("800x500")
+        self.window.geometry("960x720")
+        self.window.resizable(False,False)
+        self.search_result = lst
+        self.title = [x[1] for x in self.search_result]
+        self.ytd = youtube_downloader
         
         self.frame0 = Frame(self.window)
         self.frame0.pack(fill = BOTH)
         btGoback = Button(self.frame0, text = "Go back", command = self.Goback)
         btGoback.pack(side = LEFT)
+        btDownload = Button(self.frame0, text = "Download", command = self.Download)
+        btDownload.pack()
         
         self.frame1 = Frame(self.window)
-        self.frame1.pack()
-        label = Label(self.frame1, text = "Results")
-        label.pack()
+        self.frame1.pack(fill=BOTH, expand = True)
+        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*200))
+        self.background.config(bg = '#000000')
+        self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background.yview)
+        self.vsb.pack(side="right", fill="y")
+        self.background.configure(yscrollcommand=self.vsb.set)
+        self.background.pack(fill="both",side="left",expand = True)
         # Results should be Search(keyword)
+        
+        self.currentPath = os.getcwd()
+        self.filelist = os.listdir(self.currentPath+"\\search")
+        self.list_to_download =[]
+        self.thumbnails = []
+        for i in range(len(self.filelist)):
+            image = Image.open(self.currentPath+"\\search\\"+str(i)+".png")
+            image = image.resize((240,180))
+            image = ImageTk.PhotoImage(image)
+            self.thumbnails.append(image)
+    
+        for i in range(len(self.thumbnails)):
+            b0 = Label(self.background, image = self.thumbnails[i])
+            if len(self.title[i]) > 25:
+                for j in range(25,len(self.title[i])):
+                    if self.title[i][j] ==  " ":
+                        self.title[i] = self.title[i][:j+1] + "\n" + self.title[i][j+1:]
+                        break
+            b1 = Label(self.background, text = self.title[i])
+            b1.config(font = ("Arial", 16))
+            b2 = Checkbar_checkbutton(i, False, self.list_to_download, self.background)
+            b2.configure(command = b2.ChangeStatus)
+            self.background.create_window(120,60+(200*i), window = b0)
+            self.background.create_window(475,60+(200*i), window = b1)
+            self.background.create_window(840,60+(200*i), window = b2)
+        
+
+        self.window.mainloop()
         
     def Goback(self):
         self.frame0.destroy()
         self.frame1.destroy()
         Search_GUI(self.window)
+    
+    def Download(self):
+        #print(self.lst)
+        for i in self.list_to_download:
+            url = self.search_result[i][2]
+            title = self.search_result[i][1]
+            self.thumbnail_downloader(url,str(i))
+        for j in self.list_to_download:
+            self.ytd(self.search_result[j][0], True, False)
+        self.Showinfo()
         
+    def Showinfo(self):
+        tkinter.messagebox.showinfo("Status", "Download Success!")
+        
+    def thumbnail_downloader(self,url,title):
+        import cv2
+        import numpy as np
+        #import requests
+        
+        resp = requests.get(url, stream=True).raw
+        image = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        cv2.imwrite('thumbnails\\'+title+'.png', image)
+        print(title+'.png Success!')
 
 def photoconverter(src,x = None,y = None):
         photo = Image.open(src)
@@ -220,8 +318,6 @@ def photoconverter(src,x = None,y = None):
 class Player_GUI:
     
     def __init__(self, master = None):
-        
-
         self.cur_path = os.getcwd()+'\\downloads'
         self.button_src = os.getcwd()+'\\button'
         self.filelist = []
@@ -241,6 +337,7 @@ class Player_GUI:
         self.window.resizable(False,False)
         #self.window.configure(background = "#367B34")
         
+        #self.thumbnail = photoconverter(os.getcwd()+"\\thumbnails"+"\\1.png",480,360)
         self.play_png = photoconverter(self.button_src+"\\play.png",144,147)
         self.pause_png = photoconverter(self.button_src+"\\pause.png",150,150)
         self.not_loop_play_png = photoconverter(self.button_src+"\\not_loop.png",195,160)
@@ -257,6 +354,7 @@ class Player_GUI:
         self.background = Canvas(self.window, width = 960, height = 960)
         self.background.pack(fill= "both" ,expand = True)
         self.background.create_image(480,360, image = self.player_background)
+        #self.background.create_image(330,350,image = self.thumbnail)
         
         files = os.listdir(self.cur_path)
         self.filelist = ['downloads\\'+x for x in files]
@@ -490,37 +588,6 @@ class Checkbar_radiobutton(Button):
             self.bt.configure(image = self.image)
             self.check = True
             self.i = 1
-            
-'''class Checkbar_checkbutton(Button):
-    def __init__(self, i, check, lst, *arg):
-        super().__init__(*arg)
-        self.i = i
-        self.check = check
-        self.currentPath = os.getcwd()
-        self.image = Image.open(self.currentPath + '\\2.png')
-        self.image = ImageTk.PhotoImage(self.image)
-        self.configure(image = self.image)
-        
-        self.lst = lst
-        
-    def ChangeStatus(self):
-        if self.check:
-            self.currentPath = os.getcwd()
-            self.image = Image.open(self.currentPath + '\\2.png')
-            self.image = ImageTk.PhotoImage(self.image)
-            self.configure(image = self.image)
-            self.check = False
-            self.lst.remove(self.i)
-            #print(lst)
-            
-        else:
-            self.currentPath = os.getcwd()
-            self.image = Image.open(self.currentPath + '\\1.png')
-            self.image = ImageTk.PhotoImage(self.image)
-            self.configure(image = self.image)
-            self.check = True
-            self.lst.append(self.i)
-            #print(lst)'''
             
 window = Tk()
 window.configure(background='white')
