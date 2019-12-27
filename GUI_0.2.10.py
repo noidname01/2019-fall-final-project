@@ -108,7 +108,7 @@ class Playlist_results_GUI:
         
         self.frame1 = Frame(self.window)
         self.frame1.pack(fill=BOTH, expand = True)
-        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*110))
+        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*200))
         self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background.yview)
         self.vsb.pack(side="right", fill="y")
         self.background.configure(yscrollcommand=self.vsb.set)
@@ -116,12 +116,12 @@ class Playlist_results_GUI:
         
         
         self.currentPath = os.getcwd()
-        self.filelist = os.listdir(self.currentPath+"\\src")
+        self.filelist = os.listdir(self.currentPath+"\\playlist")
         self.lst =[]
         self.thumbnails = []
         for i in range(len(self.filelist)):
-            image = Image.open(self.currentPath+"\\src\\"+str(i)+".png")
-            image = image.resize((200,100))
+            image = Image.open(self.currentPath+"\\playlist\\"+str(i)+".png")
+            image = image.resize((240,180))
             image = ImageTk.PhotoImage(image)
             self.thumbnails.append(image)
     
@@ -136,9 +136,9 @@ class Playlist_results_GUI:
             b1.config(font = ("Arial", 16))
             b2 = Checkbar_checkbutton(i, False, self.lst, self.background)
             b2.configure(command = b2.ChangeStatus)
-            self.background.create_window(110,60+(110*i), window = b0)
-            self.background.create_window(465,60+(110*i), window = b1)
-            self.background.create_window(830,60+(110*i), window = b2)
+            self.background.create_window(110,60+(200*i), window = b0)
+            self.background.create_window(465,60+(200*i), window = b1)
+            self.background.create_window(830,60+(200*i), window = b2)
         
 
         self.window.mainloop()
@@ -228,8 +228,6 @@ def photoconverter(src,x = None,y = None):
 class Player_GUI:
     
     def __init__(self, master = None):
-        
-
         self.cur_path = os.getcwd()+'\\downloads'
         self.button_src = os.getcwd()+'\\button'
         self.filelist = []
@@ -249,6 +247,7 @@ class Player_GUI:
         self.window.resizable(False,False)
         #self.window.configure(background = "#367B34")
         
+        #self.thumbnail = photoconverter(os.getcwd()+"\\thumbnails"+"\\1.png",480,360)
         self.play_png = photoconverter(self.button_src+"\\play.png",144,147)
         self.pause_png = photoconverter(self.button_src+"\\pause.png",150,150)
         self.not_loop_play_png = photoconverter(self.button_src+"\\not_loop.png",195,160)
@@ -265,6 +264,7 @@ class Player_GUI:
         self.background = Canvas(self.window, width = 960, height = 960)
         self.background.pack(fill= "both" ,expand = True)
         self.background.create_image(480,360, image = self.player_background)
+        self.background.create_image(330,350,image = self.thumbnail)
         
         files = os.listdir(self.cur_path)
         self.filelist = ['downloads\\'+x for x in files]
@@ -498,37 +498,6 @@ class Checkbar_radiobutton(Button):
             self.bt.configure(image = self.image)
             self.check = True
             self.i = 1
-            
-'''class Checkbar_checkbutton(Button):
-    def __init__(self, i, check, lst, *arg):
-        super().__init__(*arg)
-        self.i = i
-        self.check = check
-        self.currentPath = os.getcwd()
-        self.image = Image.open(self.currentPath + '\\2.png')
-        self.image = ImageTk.PhotoImage(self.image)
-        self.configure(image = self.image)
-        
-        self.lst = lst
-        
-    def ChangeStatus(self):
-        if self.check:
-            self.currentPath = os.getcwd()
-            self.image = Image.open(self.currentPath + '\\2.png')
-            self.image = ImageTk.PhotoImage(self.image)
-            self.configure(image = self.image)
-            self.check = False
-            self.lst.remove(self.i)
-            #print(lst)
-            
-        else:
-            self.currentPath = os.getcwd()
-            self.image = Image.open(self.currentPath + '\\1.png')
-            self.image = ImageTk.PhotoImage(self.image)
-            self.configure(image = self.image)
-            self.check = True
-            self.lst.append(self.i)
-            #print(lst)'''
             
 window = Tk()
 window.configure(background='white')

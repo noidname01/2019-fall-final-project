@@ -94,8 +94,14 @@ class youtube_downloader:
                 url = inf[count].find("a").get("href")
                 if not url in self.playlist_urls:
                     self.playlist_urls.append("https://www.youtube.com"+url)
-                    
-                thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
+                    id1 = re.search(r"\/watch\?v=(.+)&list",url).group(1)
+                    thumbnail_source = "https://i.ytimg.com/vi/"+id1+"/hqdefault.jpg?"
+                    self.playlist_thumbnails_source.append(thumbnail_source)
+                    count+=1
+                self.driver.execute_script("window.scrollBy(0,101)")
+                sleep(0.01)
+                #thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
+                """
                 if thumbnail_source == None:
                     self.driver.execute_script("window.scrollBy(0,505)")
                     sleep(0.01)
@@ -110,10 +116,11 @@ class youtube_downloader:
                     else:
                         self.playlist_thumbnails_source.append(thumbnail_source)
                         count+=1
+                """
                 
                 #print(self.playlist_thumbnails_source)
             #print(self.playlist_urls)
-            print(len(self.playlist_video_titles))
+            #print(len(self.playlist_video_titles))
             self.playlist_information = []
             for i in range(len(self.playlist_thumbnails_source)):
                 self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
@@ -152,7 +159,7 @@ class youtube_downloader:
         resp = requests.get(url, stream=True).raw
         image = np.asarray(bytearray(resp.read()), dtype="uint8")
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        cv2.imwrite('src\\'+title+'.png', image)
+        cv2.imwrite('playlist\\'+title+'.png', image)
         print(title+'.png Success!')
         
     def thumbnail_getter(self):
@@ -166,8 +173,8 @@ class youtube_downloader:
             self.thread[i].join()
             """
     def clear(self):
-        shutil.rmtree(self.saveDirectory+"\\src")
-        os.mkdir(self.saveDirectory+"\\src")
+        shutil.rmtree(self.saveDirectory+"\\playlist")
+        os.mkdir(self.saveDirectory+"\\playlist")
                 
     """     main program starting here   """""
     def main(self):
@@ -200,3 +207,4 @@ class youtube_downloader:
         t.start()
         '''
         #self.is_downloaded()
+#youtube_downloader("https://www.youtube.com/watch?v=2S24-y0Ij3Y&list=PL3oW2tjiIxvQPy6WvFdbrFqvgPI9iROIM",False,True)

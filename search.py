@@ -18,6 +18,7 @@ class Search:
         self.driver = webdriver.Chrome(chromedriver,options=options)
         self.search()
         self.information_collector()
+        self.thumbnail_getter()
         
     def search(self):
         self.driver.get("https://www.youtube.com/")
@@ -94,3 +95,27 @@ class Search:
         for i in range(self.search_result_video_number):
             self.search_result.append((self.search_result_urls[i],self.search_result_video_titles[i],self.search_result_thumbnails_source[i]))
         #print(self.search_result)
+        
+    def thumbnail_downloader(self,url,title):
+        import cv2
+        import numpy as np
+        #import requests
+        
+        resp = requests.get(url, stream=True).raw
+        image = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        cv2.imwrite('search\\'+title+'.png', image)
+        print(title+'.png Success!')
+        
+    def thumbnail_getter(self):
+        for i in range(len(self.search_result)):
+            url = self.search_result[i][2]
+            #title = self.playlist_information[i][1]
+            self.thumbnail_downloader(url,str(i))
+            """
+            self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
+            self.thread[i].start()
+            self.thread[i].join()
+            """
+            
+Search("BTS")
