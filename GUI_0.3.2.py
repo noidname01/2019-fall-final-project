@@ -57,6 +57,7 @@ class Loading_GUI:
         self.main()
     def main(self):
         self.ytd = youtube_downloader(self.url, self.issingle, not self.issingle, self.progressBar)
+        self.ytd.clear()
         if not self.issingle:
             t = threading.Thread(target = self.playlist_starter)
             t.setDaemon(True)
@@ -138,8 +139,6 @@ class Downloader_GUI:
         self.background.destroy()
         Main_GUI(self.window)
         
-    
-
 class Playlist_results_GUI:
     def __init__(self, master = None, lst=[]):
         self.window = master
@@ -148,22 +147,32 @@ class Playlist_results_GUI:
         self.playlist_information = lst
         self.title = [x[1] for x in self.playlist_information]
         self.ytd = youtube_downloader
-        
+        self.buttonPath = os.getcwd() + "\\button"
+        """
         self.frame0 = Frame(self.window, bg='white')
         self.frame0.pack(fill = BOTH)
         btGoback = Button(self.frame0, text = "Go back", command = self.Goback)
         btGoback.pack(side = LEFT)
         btDownload = Button(self.frame0, text = "Download", command = self.Download)
         btDownload.pack()
+        """
+        self.playlist_background = photoconverter(self.buttonPath+"\\playlist_background.png",1440,1080)
         
         self.frame1 = Frame(self.window)
         self.frame1.pack(fill=BOTH, expand = True)
-        self.background = Canvas(self.frame1,width=960,height=720, scrollregion=(0,0,960,len(self.title)*200))
-        self.background.config(bg = '#000000')
-        self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background.yview)
+        
+        self.background1 = Canvas(self.frame1,width=960,height=720)
+        self.background1.pack()
+        self.background1.create_image(480,360, image = self.playlist_background)
+       
+        self.background2 = Canvas(self.frame1,width=760,height=470, scrollregion=(100,150,860,150+len(self.title)*160))
+        self.vsb = Scrollbar(self.frame1,orient="vertical", command=self.background2.yview)
         self.vsb.pack(side="right", fill="y")
-        self.background.configure(yscrollcommand=self.vsb.set)
-        self.background.pack(fill="both",side="left",expand = True)
+        self.background2.configure(yscrollcommand=self.vsb.set)
+        self.background2.pack()
+        
+        #place(x = 100+380 , y = 150+235)
+        
         
         
         self.currentPath = os.getcwd()
@@ -172,24 +181,24 @@ class Playlist_results_GUI:
         self.thumbnails = []
         for i in range(len(self.filelist)):
             image = Image.open(self.currentPath+"\\playlist\\"+str(i)+".png")
-            image = image.resize((240,180))
+            image = image.resize((200,150))
             image = ImageTk.PhotoImage(image)
             self.thumbnails.append(image)
     
         for i in range(len(self.thumbnails)):
-            b0 = Label(self.background, image = self.thumbnails[i])
+            b0 = Label(self.background2, image = self.thumbnails[i])
             if len(self.title[i]) > 25:
                 for j in range(25,len(self.title[i])):
                     if self.title[i][j] ==  " ":
                         self.title[i] = self.title[i][:j+1] + "\n" + self.title[i][j+1:]
                         break
-            b1 = Label(self.background, text = self.title[i])
-            b1.config(font = ("Arial", 16))
-            b2 = Checkbar_checkbutton(i, False, self.list_to_download, self.background)
+            b1 = Label(self.background2, text = self.title[i])
+            b1.config(font = ("Arial", 12))
+            b2 = Checkbar_checkbutton(i, False, self.list_to_download, self.background2)
             b2.configure(command = b2.ChangeStatus)
-            self.background.create_window(120,60+(200*i), window = b0)
-            self.background.create_window(475,60+(200*i), window = b1)
-            self.background.create_window(840,60+(200*i), window = b2)
+            self.background2.create_window(120,60+(200*i), window = b0)
+            self.background2.create_window(475,60+(200*i), window = b1)
+            self.background2.create_window(840,60+(200*i), window = b2)
         
 
         self.window.mainloop()
@@ -200,6 +209,7 @@ class Playlist_results_GUI:
         #self.background.destroy()
         self.vsb.destroy()
         self.list_to_download.clear()
+        self.ytd.clear()
         Downloader_GUI(self.window)
 
     def Download(self):
@@ -234,40 +244,36 @@ class Search_GUI:
         self.window.title("Search YouTube Video(s)")
         self.window.geometry("960x720")
         self.search = Search
-        
-        self.frame0 = Frame(self.window)
-        self.frame0.pack(fill = BOTH)
-        btGoback = Button(self.frame0, text = "Go back", command = self.Goback)
-        btGoback.pack(side = LEFT)
-        
-        self.frame1 = Frame(self.window)
-        self.frame1.pack(fill = BOTH)
-        self.label1 = Label(self.frame1, text = "Enter keywords below :")
-        self.label1.pack()
-        
-        self.frame2 = Frame(self.window)
-        self.frame2.pack(pady = 10)
+        self.buttonPath = os.getcwd() + "\\button"
         self.keyword = StringVar()
-        entry = Entry(self.frame2, textvariable = self.keyword)
-        btSearch = Button(self.frame2, text = "Search", command = self.Search_video)
-        entry.grid(row = 1, column = 1)
-        btSearch.grid(row = 1, column = 2)
         
+        self.search_background = photoconverter(self.buttonPath+"\\search_background.png",1440,1080)
+        self.search_back = photoconverter(self.buttonPath+"\\search_back.png",453,157)
+        self.search_button_png = photoconverter(self.buttonPath+"\\search_button.png",212,191)
+        self.search_download = photoconverter(self.buttonPath+"\\search_download.png",571,145)
+        
+        self.background = Canvas(self.window, width = 960, height = 720)
+        self.background.pack(fill= "both" ,expand = True)
+        self.background.create_image(480,360, image = self.search_background)
+        
+        self.back = Button(self.background,image = self.search_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(248,663,window = self.back)
+        self.entry = Entry(self.background, textvariable = self.keyword, font = "Helvetica 22 bold", width = 25, relief = FLAT)
+        self.background.create_window(470,77,window = self.entry)
+        self.search_button = Button(self.background, image = self.search_button_png, command = self.Search_video, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(852,68, window = self.search_button)
+        self.download = Button(self.background, image = self.search_download, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background.create_window(697,663,window = self.download)
+        self.window.mainloop()
         
     def Search_video(self):
-        self.frame0.destroy()
-        self.frame1.destroy()
-        self.frame2.destroy()
         self.search = self.search(self.keyword.get())
         Search_Result_GUI(self.window, lst = self.search.search_result)
         
     def Goback(self):
-        self.frame0.destroy()
-        self.frame1.destroy()
-        self.frame2.destroy()
+        self.background.destroy()
         #self.frame3.destroy()
         Main_GUI(self.window)
-
 
 class Search_Result_GUI:
     def __init__(self, master = None, keyword = "", lst = []):
@@ -308,8 +314,8 @@ class Search_Result_GUI:
     
         for i in range(len(self.thumbnails)):
             b0 = Label(self.background, image = self.thumbnails[i])
-            if len(self.title[i]) > 25:
-                for j in range(25,len(self.title[i])):
+            if len(self.title[i]) > 15:
+                for j in range(15,len(self.title[i])):
                     if self.title[i][j] ==  " ":
                         self.title[i] = self.title[i][:j+1] + "\n" + self.title[i][j+1:]
                         break
@@ -559,7 +565,6 @@ class Player_GUI:
         mixer.music.stop()
         Main_GUI(self.window)
         
-
 class Main_GUI:
     def __init__(self, master = None):
         self.window = master
@@ -598,8 +603,7 @@ class Main_GUI:
     def toPlayer(self):
         self.background.destroy()
         Player_GUI(self.window)
-        
-        
+               
 class Checkbar_radiobutton(Button):
     def __init__(self, container, image = None, command = None, i=0, check = False):
         super().__init__()
@@ -623,6 +627,5 @@ class Checkbar_radiobutton(Button):
             self.i = 1
             
 window = Tk()
-window.configure(background='white')
 Main_GUI(window)
 #window.mainloop()
