@@ -8,13 +8,15 @@ import threading
 import shutil
 
 class youtube_downloader:
-    def __init__(self,url,single_video,playlist):
+    def __init__(self,url,single_video,playlist,progressbar):
         self.url = url
         self.single_video = single_video
         self.playlist = playlist
+        self.progressbar = progressbar
         self.saveDirectory=os.getcwd()
         self.filenum = self.filenumcounter(self.saveDirectory+'\\downloads')
         self.thread = []
+        
         #chrome options config    
         prefs = {
                 'profile.default_content_setting_values':
@@ -31,7 +33,6 @@ class youtube_downloader:
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)
         
-        self.main()
     
     def urlconvert(self,url):
         return url.replace("youtube","youtubeto")
@@ -41,22 +42,28 @@ class youtube_downloader:
         return self.urlconvert(pre)
     
     def single_video_download(self,url,isfirst=True):
+            
             self.driver.get(url)
             sleep(2)
+            self.progressbar["value"] = 20
             #print(requests.get(url).text)
             if isfirst:
                 self.driver.switch_to.frame("IframeChooseDefault")
                 self.driver.find_element_by_id("MP3Format").click()
-            
+            for i in range(4):
+                self.progressbar["value"] = 40 + i*20
+                sleep(0.5)
             #driver.find_element_by_id("DownloadMP3_text").click()
             
     def playlist_download(self,url): #choose_lst contain urls that users choose to download
             self.driver.get(url)
             sleep(1)
+            self.progressbar["value"] = 20
             self.get_playlist_info(url)
             
             
     def get_playlist_info(self,url):
+            self.stage = 1
             self.playlist_title = ""
             self.playlist_video_number = int()
             self.playlist_urls = []
@@ -100,8 +107,10 @@ class youtube_downloader:
                     count+=1
                 self.driver.execute_script("window.scrollBy(0,101)")
                 sleep(0.01)
+                
+                self.progressbar["value"] = 20 + (20/length)*count
                 #thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
-                """
+            """
                 if thumbnail_source == None:
                     self.driver.execute_script("window.scrollBy(0,505)")
                     sleep(0.01)
@@ -116,7 +125,7 @@ class youtube_downloader:
                     else:
                         self.playlist_thumbnails_source.append(thumbnail_source)
                         count+=1
-                """
+            """
                 
                 #print(self.playlist_thumbnails_source)
             #print(self.playlist_urls)
@@ -124,7 +133,7 @@ class youtube_downloader:
             self.playlist_information = []
             for i in range(len(self.playlist_thumbnails_source)):
                 self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
-            
+            self.progressbar["value"] = 50
             self.thumbnail_getter()
             #print(self.playlist_information)
     def choose_download(self,lst):
@@ -146,10 +155,13 @@ class youtube_downloader:
             current_filenum = self.filenumcounter(self.saveDirectory+'downloads')
             if current_filenum > self.filenum :
                 print("Download Success, please waiting for download {} {}".format(current_filenum-self.filenum,"file" if current_filenum-self.filenum==1 else "files"))
+                self.filenum = current_filenum
                 break
             else:
                 print("Downloading ...")
                 sleep(1)
+                
+            
 
     def thumbnail_downloader(self,url,title):
         import cv2
@@ -162,23 +174,27 @@ class youtube_downloader:
         cv2.imwrite('playlist\\'+title+'.png', image)
         print(title+'.png Success!')
         
+        
     def thumbnail_getter(self):
+        self.stage = 2
         for i in range(len(self.playlist_information)):
             url = self.playlist_information[i][2]
             #title = self.playlist_information[i][1]
             self.thumbnail_downloader(url,str(i))
+            self.progressbar["value"] = 50 + (50/len(self.playlist_information))*(i+1)
             """
             self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
             self.thread[i].start()
             self.thread[i].join()
             """
+        
     def clear(self):
         shutil.rmtree(self.saveDirectory+"\\playlist")
         os.mkdir(self.saveDirectory+"\\playlist")
                 
     """     main program starting here   """""
     def main(self):
-        
+        self.progressbar["value"]= 10
         while True:
             if self.single_video:
                 match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
@@ -202,9 +218,11 @@ class youtube_downloader:
                     break
         
         '''
+        self.stage = 4
         t = threading.Thread(target = self.is_downloaded)
         t.setDaemon(True)
         t.start()
+        self.stage = 0
         '''
         #self.is_downloaded()
 #youtube_downloader("https://www.youtube.com/watch?v=2S24-y0Ij3Y&list=PL3oW2tjiIxvQPy6WvFdbrFqvgPI9iROIM",False,True)

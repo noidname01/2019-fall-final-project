@@ -1,12 +1,11 @@
 from selenium import webdriver
 from time import sleep
-import time
 import os
 import requests
-import re
-from bs4 import BeautifulSoup
-import re
-import os
+from queue import Queue
+
+search_queue = Queue()
+
 class Search:
     def __init__(self,keyword):
         self.keyword = keyword
@@ -14,8 +13,10 @@ class Search:
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
         #options.add_argument('--headless')
-        
         self.driver = webdriver.Chrome(chromedriver,options=options)
+        self.main()
+    
+    def main(self):
         self.search()
         self.information_collector()
         self.thumbnail_getter()
@@ -117,5 +118,3 @@ class Search:
             self.thread[i].start()
             self.thread[i].join()
             """
-            
-Search("BTS")

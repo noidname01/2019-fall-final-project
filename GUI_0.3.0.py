@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter.messagebox
+from tkinter import ttk
 from youtube_downloader_plan2 import youtube_downloader
 from selenium import webdriver
 from time import sleep
@@ -19,11 +20,58 @@ from PIL import ImageTk
 from Checkbar_checkbutton import Checkbar_checkbutton
 from search import Search
 
+def photoconverter(src,x = None,y = None):
+        photo = Image.open(src)
+        if x == None or y == None:
+            pass
+        else:
+            photo = photo.resize((int(2*x/3),int(2*y/3)))
+        photo = ImageTk.PhotoImage(photo)
+        
+        return photo
+
+class Loading_GUI:
+    def __init__(self, master, issingle, url, last_window):
+        self.window = master
+        self.window.title("Loading...")
+        self.window.geometry("960x720")
+        self.last_window = last_window
+        self.window.resizable(False,False)
+        self.buttonPath = os.getcwd()+'//button'
+        
+        s = ttk.Style()
+        s.theme_use('alt')
+        s.configure("Horizontal.TProgressbar", foreground="#367B34", background="#367B34")
+        self.loading_background = photoconverter(self.buttonPath+'//loading_background.png',1440,1080)
+        self.background = Canvas(self.window, width = 960, height = 720)
+        self.background.pack(fill="both",expand = True)
+        
+        self.background.create_image(480,360,image = self.loading_background)
+        self.progressBar = ttk.Progressbar(self.background,style="Horizontal.TProgressbar",orient="horizontal",length=313, mode="determinate")
+        self.background.create_window(265,603,window = self.progressBar)
+        self.progressBar["maximum"] = 100
+        
+        self.issingle = issingle
+        self.url = url
+        
+        self.main()
+    def main(self):
+        self.ytd = youtube_downloader(self.url, self.issingle, not self.issingle, self.progressBar)
+        if not self.issingle:
+            t = threading.Thread(target = self.playlist_starter)
+            t.setDaemon(True)
+            t.start()
+            
+    def playlist_starter(self):
+        self.ytd.main()
+        self.window.destroy()
+        Playlist_results_GUI(self.last_window,self.ytd.playlist_information)
+    
 class Downloader_GUI:
     def __init__(self, master):
         self.window = master
         self.window.title("YouTube Video Downloader")
-        self.window.geometry("800x500")
+        self.window.geometry("960x720")
         
         image = Image.open("download_button.gif")
         self.photo = ImageTk.PhotoImage(image)
@@ -61,17 +109,29 @@ class Downloader_GUI:
         rbtPlaylist.grid(row = 1, column = 3)'''
         
     def Download_video(self):
+        self.frame0.destroy()
+        self.frame1.destroy()
+        self.frame2.destroy()
+        self.frame3.destroy()
+        self.tl = Toplevel(self.window)
+    
+        if self.btCheckbar.i == 0:
+            self.loading = Loading_GUI(self.t1,True,self.URL.get(),self.window)
+            self.Showinfo()
+        else:
+            self.loading = Loading_GUI(self.tl,False,self.URL.get(),self.window)
+            
+            
+        """
         #self.labeltext.set("Download processing...")
         if self.btCheckbar.i == 0:
             self.ytd = youtube_downloader(self.URL.get(), True, False)
             self.Showinfo()
         else:
             self.ytd = youtube_downloader(self.URL.get(), False, True)
-            self.frame0.destroy()
-            self.frame1.destroy()
-            self.frame2.destroy()
-            self.frame3.destroy()
+            
             Playlist_results_GUI(self.window,self.ytd.playlist_information)
+        """
         '''if self.vtype.get() == 1:
             self.ytd = youtube_downloader(self.URL.get(), True, False)
         else:
@@ -162,8 +222,10 @@ class Playlist_results_GUI:
             url = self.playlist_information[i][2]
             title = self.playlist_information[i][1]
             self.thumbnail_downloader(url,str(i))
+        """
         for j in self.list_to_download:
-            self.ytd(self.playlist_information[j][0], True, False)
+            self.ytd(self.playlist_information[j][0], True, False, )
+        """
         self.Showinfo()
         
     def Showinfo(self):
@@ -184,7 +246,7 @@ class Search_GUI:
     def __init__(self, master = None):
         self.window = master
         self.window.title("Search YouTube Video(s)")
-        self.window.geometry("800x500")
+        self.window.geometry("960x720")
         self.search = Search
         
         self.frame0 = Frame(self.window)
@@ -304,16 +366,6 @@ class Search_Result_GUI:
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
         cv2.imwrite('thumbnails\\'+title+'.png', image)
         print(title+'.png Success!')
-
-def photoconverter(src,x = None,y = None):
-        photo = Image.open(src)
-        if x == None or y == None:
-            pass
-        else:
-            photo = photo.resize((int(2*x/3),int(2*y/3)))
-        photo = ImageTk.PhotoImage(photo)
-        
-        return photo
 
 class Player_GUI:
     
