@@ -27,7 +27,7 @@ class Checkbar_checkbutton(Button):
         self.check = check
         self.currentPath = os.getcwd()+"\\button"
         self.notchecked = photoconverter(self.currentPath + '\\playlist_notchecked.png',171,80)
-        self.configure(image = self.notchecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.configure(image = self.notchecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#000000", highlightthickness = 0)
         '''self.bt = Button(container, image = self.image, command = self.ChangeStatus)
         self.bt.pack()'''
         self.lst = lst
@@ -35,14 +35,14 @@ class Checkbar_checkbutton(Button):
     def ChangeStatus(self):
         if self.check:
             self.notchecked = photoconverter(self.currentPath + '\\playlist_notchecked.png',171,80)
-            self.configure(image = self.notchecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+            self.configure(image = self.notchecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#000000", highlightthickness = 0)
             self.check = False
             self.lst.remove(self.i)
             #print(lst)
             
         else:
             self.ischecked = photoconverter(self.currentPath + '\\playlist_ischecked.png',171,70)
-            self.configure(image = self.ischecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+            self.configure(image = self.ischecked,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#000000", highlightthickness = 0)
             self.check = True
             self.lst.append(self.i)
             #print(lst)
