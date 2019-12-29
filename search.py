@@ -7,37 +7,51 @@ from queue import Queue
 search_queue = Queue()
 
 class Search:
-    def __init__(self,keyword):
+    def __init__(self,keyword,canvas):
         self.keyword = keyword
         self.saveDirectory=os.getcwd()
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         self.driver = webdriver.Chrome(chromedriver,options=options)
-        self.main()
+        self.result_display = canvas
     
     def main(self):
         self.search()
         self.information_collector()
         self.thumbnail_getter()
+        self.driver.close()
         
     def search(self):
-        self.driver.get("https://www.youtube.com/")
+        self.driver.get("https://www.youtube.com/results?search_query="+self.keyword)
         sleep(1)
-        self.driver.find_element_by_id("search").send_keys(self.keyword)
-        sleep(0.5)
-        self.driver.find_element_by_id("search-icon-legacy").click()
-        sleep(2)
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -24,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -24,outline="white")
         self.driver.find_element_by_xpath("//yt-icon[@class='style-scope ytd-toggle-button-renderer']").click()
         sleep(0.5)
+        self.result_display.delete("loading")
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -36,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -36,outline="white")
         self.driver.find_element_by_xpath("//div[@title='搜尋「視訊」']").click()
         sleep(1)
+        self.result_display.delete("loading")
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -60,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -60,outline="white")
         self.driver.find_element_by_xpath("//yt-icon[@class='style-scope ytd-toggle-button-renderer']").click()
         sleep(0.5)
+        self.result_display.delete("loading")
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -72,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -72,outline="white")
         self.driver.find_element_by_xpath("//div[@title='按觀看次數排序']").click()
         sleep(1)
+        self.result_display.delete("loading")
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -96,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -96,outline="white")
         
     def information_collector(self,):
+        self.result_display.delete("loading")
+        self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -100,outline="white")
+        self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -100,outline="white")
         self.search_result_video_number = 20
         self.search_result_urls = []
         self.search_result_video_titles = [] 
@@ -57,8 +71,9 @@ class Search:
             
             self.driver.execute_script("window.scrollBy(0,138)")
             sleep(0.01)
-            
-        
+            self.result_display.delete("loading")
+            self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -(100+6.5*i),outline="white")
+            self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -(100+6.5*i),outline="white")
         """
         length = self.search_result_video_number
         count = 0
@@ -67,7 +82,7 @@ class Search:
             thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
             #print(thumbnail_source)
             
-            if thumbnail_source == None:
+            if thumbnail_source == "white":
                 sleep(0.01)
                 self.driver.execute_script("window.scrollBy(0,276)")
                 bs = BeautifulSoup(self.driver.page_source,"html.parser") #update website elements
@@ -113,6 +128,11 @@ class Search:
             url = self.search_result[i][2]
             #title = self.playlist_information[i][1]
             self.thumbnail_downloader(url,str(i))
+            self.result_display.delete("loading")
+            self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -(230+6.5*(i+1)),outline="white")
+            self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -(230+6.5*(i+1)),outline="white")
+            
+            
             """
             self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
             self.thread[i].start()
