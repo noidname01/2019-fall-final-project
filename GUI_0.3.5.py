@@ -646,34 +646,7 @@ class Checkbar_radiobutton(Button):
             self.check = True
             self.i = 1
             
-class Search_Bar(Canvas):
-    def __init__(self,i, photo, title,lst, *arg):
-        super().__init__(*arg)
-        self.i = i
-        self.downloadlist = lst
-        self.ischecked = False
-        self.search_bar_background = photoconverter(os.getcwd()+"\\button\\search_bar.png",1260,261)
-        #self.create_image(420,87,image = self.search_bar_background, tags = "search_bar")
-        self.photo = photo
-        self.title = title
-        self.thumbnail_label = Label(self, image = self.photo, bg ="#FFFFFF", bd = 0 , highlightthickness = 0)
-        self.title_label = Label(self, text = self.title, bg ="#FFFFFF", bd = 0 , highlightthickness = 0, font="Helvetica 18 bold")
-        self.create_window(150,100, window = self.thumbnail_label)
-        self.create_window(550,80, window = self.title_label)
-        
-    def changeBackground(self,event):
-        if not self.ischecked:
-            self.create_image(370,87,image = self.search_bar_background, tags = "search_bar")
-            self.thumbnail_label.config(bg = "#367B34")
-            self.title_label.config(bg = "#367B34")
-            self.downloadlist.append(self.i)
-            self.ischecked = True
-        else:
-            self.delete("search_bar")
-            self.thumbnail_label.config(bg = "#FFFFFF")
-            self.title_label.config(bg = "#FFFFFF")
-            self.downloadlist.remove(self.i)
-            self.ischecked = False
+
             
 window = Tk()
 Main_GUI(window)
