@@ -34,6 +34,38 @@ class youtube_downloader:
         options.add_experimental_option('prefs', prefs)
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)
+        
+    """     main program starting here   """""
+    def main(self):
+        self.progressbar["value"]= 10
+        
+        if self.single_video:
+            match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
+            if match_url==None:
+                tkinter.messagebox.showwarning("Status","Invalid url, please try again.")
+                self.main()
+            else:
+                url = match_url.group()
+                url = self.urlconvert(url)
+                self.single_video_download(url)
+                self.progressbar["value"] = 20
+                for i in range(4):
+                    self.progressbar["value"] = 40 + i*20
+                    sleep(0.5)
+                
+        elif self.playlist:
+            match_url = re.match(r"(https?:\/\/www\.youtube\.com).*&?(list=.*)",self.url)
+            if match_url==None:
+                tkinter.messagebox.showwarning("Status","Invalid url or this url doesn't from a playlist, please try again.")
+                self.main()
+            else:
+                playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
+                self.playlist_download(playlist_url)
+                
+        
+        t = threading.Thread(target = self.is_downloadedChecker)
+        t.setDaemon(True)
+        t.start()
     
     def urlconvert(self,url):
         return url.replace("youtube","youtubeto")
@@ -115,7 +147,10 @@ class youtube_downloader:
                 self.playlist_information.append((self.playlist_urls[i],self.playlist_video_titles[i],self.playlist_thumbnails_source[i]))
             self.progressbar["value"] = 50
             self.thumbnail_getter()
+            
+            self.driver.quit()
             #print(self.playlist_information)
+            
     def choose_download(self,lst):
         t = threading.Thread(target = self.is_downloadedChecker)
         t.setDaemon(True)
@@ -124,14 +159,14 @@ class youtube_downloader:
         for i in range(len(lst)):
             url = lst[i]
             self.single_video_download(url,True if i == 0 else False)
-            sleep(5)
+            if i == len(lst)-1:
+                sleep(8)
+            else:
+                sleep(5)
             self.progressbar["value"] += 100/len(lst)
-        """
-        for index in range(len(lst)):
-            url = self.playlist_to_url(self.playlist_urls[lst[index]])
-            self.single_video_download(url,True if index == 0 else False)
-            sleep(2)            
-         """  
+            
+        self.driver.quit()
+        
     def filenumcounter(self,path):
         current_path_tree = os.walk(path)
         count=0
@@ -154,7 +189,6 @@ class youtube_downloader:
     def thumbnail_downloader(self,url,title):
         import cv2
         import numpy as np
-        #import requests
         
         resp = requests.get(url, stream=True).raw
         image = np.asarray(bytearray(resp.read()), dtype="uint8")
@@ -168,45 +202,7 @@ class youtube_downloader:
             #title = self.playlist_information[i][1]
             self.thumbnail_downloader(url,str(i))
             self.progressbar["value"] = 50 + (50/len(self.playlist_information))*(i+1)
-            """
-            self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
-            self.thread[i].start()
-            self.thread[i].join()
-            """
-        
+            
     def clear(self):
         shutil.rmtree(self.saveDirectory+"\\playlist")
         os.mkdir(self.saveDirectory+"\\playlist")
-                
-    """     main program starting here   """""
-    def main(self):
-        self.progressbar["value"]= 10
-        while True:
-            if self.single_video:
-                match_url = re.match(r"(https?:\/\/www\.youtube\.com[^&]*)",self.url)
-                if match_url==None:
-                    tkinter.messagebox.showwarning("Status","Invalid url, please try again.")
-                    break
-                else:
-                    url = match_url.group()
-                    url = self.urlconvert(url)
-                    self.single_video_download(url)
-                    self.progressbar["value"] = 20
-                    for i in range(4):
-                        self.progressbar["value"] = 40 + i*20
-                        sleep(0.5)
-                    
-            elif self.playlist:
-                match_url = re.match(r"(https?:\/\/www\.youtube\.com).*&?(list=.*)",self.url)
-                if match_url==None:
-                    tkinter.messagebox.showwarning("Status","Invalid url or this url doesn't from a playlist, please try again.")
-                    break
-                else:
-                    playlist_url = match_url.group(1)+"/playlist?"+match_url.group(2)
-                    self.playlist_download(playlist_url)
-                    break
-        
-        t = threading.Thread(target = self.is_downloadedChecker)
-        t.setDaemon(True)
-        t.start()
-        

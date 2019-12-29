@@ -20,7 +20,7 @@ class Search:
         self.search()
         self.information_collector()
         self.thumbnail_getter()
-        self.driver.close()
+        self.driver.quit()
         
     def search(self):
         self.driver.get("https://www.youtube.com/results?search_query="+self.keyword)
@@ -132,8 +132,7 @@ class Search:
             self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -(230+6.5*(i+1)),outline="white")
             self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -(230+6.5*(i+1)),outline="white")
             
-            
-            """
+        """
             self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
             self.thread[i].start()
             self.thread[i].join()

@@ -42,18 +42,18 @@ class Downloader_GUI:
         self.download_button = photoconverter(self.buttonPath+'\\download_button.png',668,283)
         self.download_back = photoconverter(self.buttonPath+'\\download_back.png',346,321)
 
-        self.background = Canvas(self.window, width = 960, height = 720)
-        self.background.pack(fill= "both" ,expand = True)
-        self.background.create_image(960//2,720//2, image = self.download_background)
+        self.background3 = Canvas(self.window, width = 960, height = 720)
+        self.background3.pack(fill= "both" ,expand = True)
+        self.background3.create_image(960//2,720//2, image = self.download_background)
         
-        self.btGoback = Button(self.background, image = self.download_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(161, 601, window = self.btGoback)
+        self.btGoback = Button(self.background3, image = self.download_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background3.create_window(161, 601, window = self.btGoback)
         self.URL = StringVar()
-        self.entry = Entry(self.background, textvariable = self.URL, font = "Helvetica 30 bold", width = 35, relief = FLAT)
-        self.background.create_window(467 , 265, window = self.entry)
-        self.btDownload = Button(self.background, image = self.download_button, command = self.Download_video ,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(507, 613, window = self.btDownload)
-        self.btCheckbar = Checkbar_radiobutton(self.background)
+        self.entry = Entry(self.background3, textvariable = self.URL, font = "Helvetica 30 bold", width = 35, relief = FLAT)
+        self.background3.create_window(467 , 265, window = self.entry)
+        self.btDownload = Button(self.background3, image = self.download_button, command = self.Download_video ,relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background3.create_window(507, 613, window = self.btDownload)
+        self.btCheckbar = Checkbar_radiobutton(self.background3)
         
         self.window.mainloop()
         
@@ -64,14 +64,16 @@ class Downloader_GUI:
                 self.loading = self.Loading_GUI(master = self.tl,issingle = True,url = self.URL.get())
                 self.Showinfo()
             else:
-                self.background.destroy()
                 self.tl = Toplevel(self.window)
                 self.loading = self.Loading_GUI(master = self.tl,issingle = False,url = self.URL.get())
+                
         except:
             pass
         
+        
     #@classmethod
     def Playlist_results_GUI(self, lst=[]):
+        self.background3.destroy()
         #self.window = master
         #self.window.geometry("960x720")
         #self.window.resizable(False,False)
@@ -129,6 +131,7 @@ class Downloader_GUI:
             self.result_display.create_window(800,260+(125*i), window = b2)
         
     def Loading_GUI(self, master, issingle = None, ischoose = None, url = None, lst = None):
+        
         self.window2 = master
         self.window2.title("Loading...")
         self.window2.geometry("960x720")
@@ -195,7 +198,7 @@ class Downloader_GUI:
             tkinter.messagebox.showwarning("Status", "Download failed, please try again later")'''
     
     def Goback(self):
-        self.background.destroy()
+        self.background3.destroy()
         Main_GUI(self.window)
         
     def Goback2(self):
@@ -221,8 +224,8 @@ class Downloader_GUI:
             url = url.replace("youtube","youtubeto")
             lst.append(url)
         
-            self.Loading_GUI(master = Toplevel(self.window), lst = lst, ischoose = True)
-            self.showinfo()
+        self.Loading_GUI(master = Toplevel(self.window), lst = lst, ischoose = True)
+        self.Showinfo()
         
 class Search_GUI:
     def __init__(self, master = None):
@@ -239,26 +242,26 @@ class Search_GUI:
         self.search_button_png = photoconverter(self.buttonPath+"\\search_button.png",212,191)
         self.search_download = photoconverter(self.buttonPath+"\\search_download.png",571,145)
         
-        self.background = Canvas(self.window, width = 960, height = 720, bg = "white", bd= 0 , highlightthickness = 0)
-        self.background.pack(fill= "both" ,expand = True)
-        self.background.create_image(480,360, image = self.search_background)
+        self.background1 = Canvas(self.window, width = 960, height = 720, bg = "white", bd= 0 , highlightthickness = 0)
+        self.background1.pack(fill= "both" ,expand = True)
+        self.background1.create_image(480,360, image = self.search_background)
         
-        self.frame1 = Frame(self.background, width = 840, height = 410, relief = FLAT, bd = 0 , highlightthickness = 0)
+        self.frame1 = Frame(self.background1, width = 840, height = 410, relief = FLAT, bd = 0 , highlightthickness = 0)
         self.result_display = Canvas(self.frame1, width = 840, height = 410, scrollregion=(60,165,900,250*20+200), bg = "#FFFFFF", bd= 0 ,highlightthickness = 0)
         self.vsb = Scrollbar(self.frame1, orient = "vertical", command = self.result_display.yview)
         self.vsb.pack(side = "right", fill = "y")
         self.result_display.configure(yscrollcommand = self.vsb.set)
         self.result_display.pack(fill = "both", expand = True)
-        self.background.create_window(480,370, window = self.frame1)
+        self.background1.create_window(480,370, window = self.frame1)
         
-        self.back = Button(self.background,image = self.search_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(248,663,window = self.back)
-        self.entry = Entry(self.background, textvariable = self.keyword, font = "Helvetica 22 bold", width = 25, relief = FLAT)
-        self.background.create_window(470,77,window = self.entry)
-        self.search_button = Button(self.background, image = self.search_button_png, command = self.Search_video, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(852,68, window = self.search_button)
-        self.download = Button(self.background, image = self.search_download, command = self.Download , relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(694,663,window = self.download)
+        self.back = Button(self.background1,image = self.search_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background1.create_window(248,663,window = self.back)
+        self.entry = Entry(self.background1, textvariable = self.keyword, font = "Helvetica 22 bold", width = 25, relief = FLAT)
+        self.background1.create_window(470,77,window = self.entry)
+        self.search_button = Button(self.background1, image = self.search_button_png, command = self.Search_video, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background1.create_window(852,68, window = self.search_button)
+        self.download = Button(self.background1, image = self.search_download, command = self.Download , relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
+        self.background1.create_window(694,663,window = self.download)
         
     def Search_video(self):
         self.result_display.delete("search_content")
@@ -314,6 +317,7 @@ class Search_GUI:
     
     
     def Loading_GUI(self, master, url = None, lst = None):
+        
         self.window2 = master
         self.window2.title("Loading...")
         self.window2.geometry("960x720")
@@ -335,6 +339,7 @@ class Search_GUI:
         self.url = url
         self.lst = lst
         self.main()
+        
     def main(self):
         self.ytd = youtube_downloader(progressbar = self.progressBar)
         self.ytd.clear()
@@ -354,29 +359,29 @@ class Search_GUI:
             tkinter.messagebox.showinfo("Status", "Download Success!")
         else:
             tkinter.messagebox.showwarning("Status", "Download failed, please try again later")'''
-    
+          
     def Goback(self):
-        self.background.destroy()
-        Main_GUI(self.window)
-      
-    def Goback2(self):
-        self.background.destroy()
-        self.frame1.destroy()
+        self.back.destroy()
+        self.entry.destroy()
+        self.search_button.destroy()
+        self.download.destroy()
         self.result_display.destroy()
         self.vsb.destroy()
+        self.frame1.destroy()
+        self.background1.destroy()
         self.list_to_download.clear()
+        
         #self.ytd.clear()
-        Search_GUI(self.window)
-        self.back.config(command = self.Goback)
+        Main_GUI(self.window)
         
     def Download(self):
-        self.ytd = youtube_downloader()
+        self.ytd = youtube_downloader
         print(self.list_to_download)
         lst = []
         for i in self.list_to_download:
             url = self.search_result[i][2]
             #title = self.playlist_information[i][1]
-            self.ytd.thumbnail_downloader(url,str(i))
+            self.ytd.thumbnail_downloader(self.ytd,url,str(i))
         
         for i in self.list_to_download:
             url = self.search_result[i][0]
@@ -385,7 +390,6 @@ class Search_GUI:
             lst.append(url)
         
         self.Loading_GUI(master = Toplevel(self.window), lst = lst)
-        self.back.config(command = self.Goback2)
         self.Showinfo()
     
 class Player_GUI:
