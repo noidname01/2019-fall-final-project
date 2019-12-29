@@ -28,7 +28,7 @@ class youtube_downloader:
                     
         chromedriver = self.saveDirectory+"\\chromedriver"
         options = webdriver.ChromeOptions()
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_experimental_option('prefs', prefs)
         options.add_argument("disable-infobars")
         self.driver = webdriver.Chrome(chromedriver,options=options)

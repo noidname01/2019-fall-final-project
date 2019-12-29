@@ -62,11 +62,18 @@ class Loading_GUI:
             t = threading.Thread(target = self.playlist_starter)
             t.setDaemon(True)
             t.start()
-            
+        else:
+            t = threading.Thread(target = self.single_starter)
+            t.setDaemon(True)
+            t.start()
     def playlist_starter(self):
         self.ytd.main()
         self.window.destroy()
         Playlist_results_GUI(self.last_window,self.ytd.playlist_information)
+        
+    def single_starter(self):
+        self.ytd.main()
+        self.window.destroy()
     
 class Downloader_GUI:
     def __init__(self, master):
@@ -102,13 +109,13 @@ class Downloader_GUI:
         rbtPlaylist.grid(row = 1, column = 3)'''
         
     def Download_video(self):
-        self.background.destroy()
-        self.tl = Toplevel(self.window)
-    
         if self.btCheckbar.i == 0:
-            self.loading = Loading_GUI(self.t1,True,self.URL.get(),self.window)
+            self.tl = Toplevel(self.window)
+            self.loading = Loading_GUI(self.tl,True,self.URL.get(),self.window)
             self.Showinfo()
         else:
+            self.background.destroy()
+            self.tl = Toplevel(self.window)
             self.loading = Loading_GUI(self.tl,False,self.URL.get(),self.window)
             
             
@@ -252,9 +259,17 @@ class Search_GUI:
         self.search_button_png = photoconverter(self.buttonPath+"\\search_button.png",212,191)
         self.search_download = photoconverter(self.buttonPath+"\\search_download.png",571,145)
         
-        self.background = Canvas(self.window, width = 960, height = 720)
+        self.background = Canvas(self.window, width = 960, height = 720, bg = "white")
         self.background.pack(fill= "both" ,expand = True)
         self.background.create_image(480,360, image = self.search_background)
+        
+        self.frame1 = Frame(self.background, width = 840, height = 410, relief = FLAT, bd = 0 , highlightthickness = 0)
+        self.result_display = Canvas(self.frame1, width = 840, height = 410, scrollregion=(60,165,900,200*20), bg = "#FFFFFF")
+        self.vsb = Scrollbar(self.frame1, orient = "vertical", command = self.result_display.yview)
+        self.vsb.pack(side = "right", fill = "y")
+        self.result_display.configure(yscrollcommand = self.vsb.set)
+        self.result_display.pack(fill = "both", expand = True)
+        self.background.create_window(480,370, window = self.frame1)
         
         self.back = Button(self.background,image = self.search_back, command = self.Goback, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
         self.background.create_window(248,663,window = self.back)
@@ -263,17 +278,62 @@ class Search_GUI:
         self.search_button = Button(self.background, image = self.search_button_png, command = self.Search_video, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
         self.background.create_window(852,68, window = self.search_button)
         self.download = Button(self.background, image = self.search_download, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
-        self.background.create_window(697,663,window = self.download)
+        self.background.create_window(694,663,window = self.download)
+        
         self.window.mainloop()
         
     def Search_video(self):
         self.search = self.search(self.keyword.get())
-        Search_Result_GUI(self.window, lst = self.search.search_result)
+        self.Search_Result(lst = self.search.search_result)
+     
+        
+    def Search_Result(self, lst):
+        self.search_result = lst
+        self.title = [x[1] for x in self.search_result]
+        self.currentPath = os.getcwd()
+        self.filelist = os.listdir(self.currentPath+"\\search")
+        self.list_to_download =[]
+        self.thumbnails = []
+        self.ischecked = False
+        
+        self.search_bar = photoconverter(self.currentPath+"\\button\\search_bar.png",1260,261)
+        
+        for i in range(len(self.filelist)):
+            image = Image.open(self.currentPath+"\\search\\"+str(i)+".png")
+            image = image.resize((240,180))
+            image = ImageTk.PhotoImage(image)
+            self.thumbnails.append(image)
+    
+        for i in range(len(self.thumbnails)):
+            if len(self.title[i]) > 15:
+                for j in range(15,len(self.title[i])):
+                    if self.title[i][j] ==  " ":
+                        self.title[i] = self.title[i][:j+1] + "\n" + self.title[i][j+1:]
+                        break
+            bar = Canvas(self.result_display,width = 800, height = 200, bg = "white")
+            bar.bind("<Button-1>",self.changeBackground)
+            b1 = Label(bar,image = self.thumbnails[i], bg = "#FFFFFF")
+            b2 = Label(bar, text = self.title[i], bg ="#FFFFFF", font = "Helvetica 16 bold")
+            bar.create_window(140,110,window = b1,tags = "search_content")
+            bar.create_window(550,110,window = b2,tags = "search_content")
+            self.result_display.create_window(500,220+(220*i), window = bar)
+    
+    def changeBackground(self,event):
+        if not self.ischecked:
+            event.widget.create_image(420,87,image = self.search_bar, tags = "search_bar")
+            event.widget.itemconfig("search_content",backgroundcolor = "#347B36" )
+        else:
+            event.widget.delete("search_bar")
+            event.widget.itemconfig("search_content",backgroundcolor = "#FFFFFF" )
         
     def Goback(self):
         self.background.destroy()
         #self.frame3.destroy()
         Main_GUI(self.window)
+        self.background.destroy()
+        Main_GUI(self.master)
+    
+        
 
 class Search_Result_GUI:
     def __init__(self, master = None, keyword = "", lst = []):
