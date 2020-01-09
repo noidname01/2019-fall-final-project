@@ -92,7 +92,6 @@ class youtube_downloader:
             self.get_playlist_info(url)
             
     def get_playlist_info(self,url):
-            self.stage = 1
             self.playlist_title = ""
             self.playlist_video_number = int()
             self.playlist_urls = []
@@ -185,7 +184,14 @@ class youtube_downloader:
                 self.is_downloaded = False
             
             sleep(3)
-        
+    
+    def thumbnail_getter(self):
+        for i in range(len(self.playlist_information)):
+            url = self.playlist_information[i][2]
+            #title = self.playlist_information[i][1]
+            self.thumbnail_downloader(url,str(i))
+            self.progressbar["value"] = 50 + (50/len(self.playlist_information))*(i+1)
+    
     def thumbnail_downloader(self,url,title):
         import cv2
         import numpy as np
@@ -196,13 +202,6 @@ class youtube_downloader:
         cv2.imwrite('playlist\\'+title+'.png', image)
         print(title+'.png Success!')
         
-    def thumbnail_getter(self):
-        for i in range(len(self.playlist_information)):
-            url = self.playlist_information[i][2]
-            #title = self.playlist_information[i][1]
-            self.thumbnail_downloader(url,str(i))
-            self.progressbar["value"] = 50 + (50/len(self.playlist_information))*(i+1)
-            
     def clear(self):
         shutil.rmtree(self.saveDirectory+"\\playlist")
         os.mkdir(self.saveDirectory+"\\playlist")
