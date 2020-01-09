@@ -2,9 +2,6 @@ from selenium import webdriver
 from time import sleep
 import os
 import requests
-from queue import Queue
-
-search_queue = Queue()
 
 class Search:
     def __init__(self,keyword,canvas):
@@ -48,7 +45,7 @@ class Search:
         self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -96,outline="white")
         self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -96,outline="white")
         
-    def information_collector(self,):
+    def information_collector(self):
         self.result_display.delete("loading")
         self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -100,outline="white")
         self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -100,outline="white")
@@ -74,38 +71,6 @@ class Search:
             self.result_display.delete("loading")
             self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -(100+6.5*i),outline="white")
             self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -(100+6.5*i),outline="white")
-        """
-        length = self.search_result_video_number
-        count = 0
-        while count<length:
-        
-            thumbnail_source = inf[count].find("yt-img-shadow").find("img").get("src")
-            #print(thumbnail_source)
-            
-            if thumbnail_source == "white":
-                sleep(0.01)
-                self.driver.execute_script("window.scrollBy(0,276)")
-                bs = BeautifulSoup(self.driver.page_source,"html.parser") #update website elements
-                inf = bs.find("div",{"id":"content"}).find_all("ytd-video-renderer")
-                inf = inf[:self.search_result_video_number] 
-                continue
-            else:
-                self.search_result_thumbnails_source.append(thumbnail_source)
-                count+=1              
-            #print(count)
-        """
-        """
-        for information in inf:
-            url = information.find("a").get("href")
-            self.search_result_urls.append("https://www.youtube.com"+url)
-            
-            id1 = url.replace("/watch?v=","")
-            thumbnail_source = "https://i.ytimg.com/vi/"+id1+"/hqdefault.jpg?"
-            self.search_result_thumbnails_source.append(thumbnail_source)
-            
-            video_title = information.find("a",{"id":"video-title"}).get("title")
-            self.search_result_video_titles.append(video_title)
-        """
         
         self.search_result = []
         for i in range(self.search_result_video_number):
@@ -132,8 +97,3 @@ class Search:
             self.result_display.create_arc(450,320,540,410,fill = "#367B34", tags = "loading", start = 90, extent = -(230+6.5*(i+1)),outline="white")
             self.result_display.create_arc(470,340,520,390,fill = "white", tags = "loading",start = 90, extent = -(230+6.5*(i+1)),outline="white")
             
-        """
-            self.thread.append(threading.Thread(target = self.thumbnail_downloader, args=(url,str(i),)))
-            self.thread[i].start()
-            self.thread[i].join()
-            """

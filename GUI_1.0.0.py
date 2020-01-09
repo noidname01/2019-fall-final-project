@@ -74,9 +74,6 @@ class Downloader_GUI:
     #@classmethod
     def Playlist_results_GUI(self, lst=[]):
         self.background3.destroy()
-        #self.window = master
-        #self.window.geometry("960x720")
-        #self.window.resizable(False,False)
         self.playlist_information = lst
         
         self.title = [x[1] for x in self.playlist_information]
@@ -131,7 +128,6 @@ class Downloader_GUI:
             self.result_display.create_window(800,260+(125*i), window = b2)
         
     def Loading_GUI(self, master, issingle = None, ischoose = None, url = None, lst = None):
-        
         self.window2 = master
         self.window2.title("Loading...")
         self.window2.geometry("960x720")
@@ -165,8 +161,7 @@ class Downloader_GUI:
         elif self.issingle:
             t = threading.Thread(target = self.single_starter)
             t.setDaemon(True)
-            t.start()
-            
+            t.start()  
         if self.ischoose:
             t = threading.Thread(target = self.choose_starter, args=(self.lst,))
             t.setDaemon(True)
@@ -286,9 +281,6 @@ class Search_GUI:
         self.list_to_download =[]
         self.thumbnails = []
         self.ischecked = False
-        
-        #self.search_bar = photoconverter(self.currentPath+"\\button\\search_bar.png",1260,261)
-        
         for i in range(len(self.filelist)):
             image = Image.open(self.currentPath+"\\search\\"+str(i)+".png")
             image = image.resize((240,180))
@@ -393,17 +385,14 @@ class Search_GUI:
         self.Showinfo()
     
 class Player_GUI:
-    
     def __init__(self, master = None):
         self.cur_path = os.getcwd()+'\\downloads'
         self.button_src = os.getcwd()+'\\button'
         self.filelist = []
         self.playlist = []
-        self.ispause = False
-        self.loop_play_times = 0
-        self.isloop_play = False
         self.count = 0
-        self.is_next_song = False
+        self.ispause = False
+        self.isloop_play = False
         self.israndom_play = False
         self.nowplaying = str()
         
@@ -431,15 +420,12 @@ class Player_GUI:
         self.background = Canvas(self.window, width = 960, height = 960)
         self.background.pack(fill= "both" ,expand = True)
         self.background.create_image(480,360, image = self.player_background)
-        #self.background.create_image(330,350,image = self.thumbnail)
-        
+
         files = os.listdir(self.cur_path)
         self.filelist = ['downloads\\'+x for x in files]
         self.playlist = [x for x in self.filelist]
-        
         self.label_text = StringVar()
         self.volume = 30
-        
         self.button1 = Button(self.background, image = self.pause_png , command = self.pause,  relief = FLAT, bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
         self.background.create_window(240,612, window = self.button1)
         self.button2 = Button(self.background, image = self.not_loop_play_png , command = self.loop_play, relief = FLAT,bg = "#347B36", bd = 0 , activebackground = "#347B36", highlightthickness = 0)
@@ -476,14 +462,17 @@ class Player_GUI:
         self.window.protocol("WM_DELETE_WINDOW",self.stop)
         self.window.mainloop()
     
+    def play(self):
+        while True:
+            if not mixer.music.get_busy() and not self.ispause:
+                self.next_song()
+            sleep(0.25)
+            
     def drag(self,event):
         if self.background.find_withtag("slider"):
             if event.y_root>=550 and event.y_root<=680:
                 dy = event.y_root-self.slider_y
-                if dy>0:
-                    self.background.move("slider",0,dy)
-                else:
-                    self.background.move("slider",0,dy)
+                self.background.move("slider",0,dy)
                 self.slider_y+=event.y_root-self.slider_y
                 
     def release(self,event):
@@ -508,9 +497,6 @@ class Player_GUI:
             self.count += 1
             
     def pause(self):
-        if self.is_next_song:
-            self.is_next_song = False
-        
         if not self.ispause:
             mixer.music.pause()
             self.ispause = True
@@ -586,12 +572,6 @@ class Player_GUI:
         mixer.music.stop()
         self.window.destroy()
         sys.exit()
-        
-    def play(self):
-        while True:
-            if not mixer.music.get_busy() and not self.ispause:
-                self.next_song()
-            sleep(0.25)
         
     def Goback(self):
         self.background.destroy()
