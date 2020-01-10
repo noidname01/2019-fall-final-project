@@ -1,16 +1,26 @@
 # 2019-fall-final-project
-## 12/30-12/31 最終Demo
+# 所需套件、環境
+> * selenium
+> * tkinter
+> * requests
+> * bs4
+> * shutil
+> * time
+> * re
+> * threading
+> * os
+> * pillow
+> * pygame
 ## 注意
-> * 每次要更新自己本地檔案
-```bash
-$ git pull upstream master
-```
-> * 每次要上傳自己檔案到自己的fork
-```bash
-$ git push origin master
-```
-然後送pull request
-
+project所附之webdriver為chrome 79.0 版本，若您的瀏覽器與此版本不符，請更新或是下載該版本之webdriver<br>
+下載網址:https://chromedriver.chromium.org/downloads
+# 操作方法
+請觀看以下影片<br>
+https://www.youtube.com/watch?v=gdyvQ38CozE&feature=youtu.be
+# 分工時間軸
+> * noidname01: B08901072 王友廷
+> * brainho90:  B08901156 何明翰
+> * kk1119737:  B08901107 詹景翔
 ## 2019/11/20 - 2019/11/24
 決定主題
 ## 2019/11/25 - 2019/11/30
@@ -36,4 +46,6 @@ $ git push origin master
 > * kk1119737: search,playlist顯示, GUI圖片放置
 > * brianho90: checkbutton繪製, search,playlist顯示設計
 
-<h1 style="text-align:center">大家加油~~ 大一上會過去，GPA會留下(;´༎ຶД༎ຶ`)</h1>
+<h1 style="text-align:center">大家加油~~ 大一上會過去，GPA會留下(;´༎ຶД༎ຶ`)
+<br>不，已經留下了_(:3 」∠ )_</h1>
+
