@@ -43,7 +43,7 @@ https://www.youtube.com/watch?v=gdyvQ38CozE&feature=youtu.be<br>
 ## 2019/12/22 - 2019/12/29
 分工:
 > * common: 全部整合, 測試錯誤, 製作PPT
-> * noidname01: 進度條顯示, 遊戲置入
+> * noidname01: 進度條顯示, 遊戲置入(沒做完，我道歉ORZ)
 > * kk1119737: search,playlist顯示, GUI圖片放置
 > * brianho90: checkbutton繪製, search,playlist顯示設計
 
