@@ -403,7 +403,7 @@ class Player_GUI:
         self.window.resizable(False,False)
         #self.window.configure(background = "#367B34")
         
-        #self.thumbnail = photoconverter(os.getcwd()+"\\thumbnails"+"\\1.png",480,360)
+       
         self.play_png = photoconverter(self.button_src+"\\play.png",144,147)
         self.pause_png = photoconverter(self.button_src+"\\pause.png",150,150)
         self.not_loop_play_png = photoconverter(self.button_src+"\\not_loop.png",195,160)
