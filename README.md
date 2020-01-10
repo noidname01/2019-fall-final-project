@@ -16,7 +16,8 @@ project所附之webdriver為chrome 79.0 版本，若您的瀏覽器與此版本�
 下載網址:https://chromedriver.chromium.org/downloads
 # 操作方法
 請觀看以下影片<br>
-https://www.youtube.com/watch?v=gdyvQ38CozE&feature=youtu.be
+https://www.youtube.com/watch?v=gdyvQ38CozE&feature=youtu.be<br>
+下載時請不要太快關閉
 # 分工時間軸
 > * noidname01: B08901072 王友廷
 > * brainho90:  B08901156 何明翰
