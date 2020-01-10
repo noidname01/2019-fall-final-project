@@ -163,8 +163,6 @@ class youtube_downloader:
             else:
                 sleep(5)
             self.progressbar["value"] += 100/len(lst)
-            
-        self.driver.quit()
         
     def filenumcounter(self,path):
         current_path_tree = os.walk(path)

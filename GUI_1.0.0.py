@@ -195,6 +195,7 @@ class Downloader_GUI:
     def Goback(self):
         self.background3.destroy()
         Main_GUI(self.window)
+        self.ytd.driver.quit()
         
     def Goback2(self):
         self.background1.destroy()
@@ -281,7 +282,7 @@ class Search_GUI:
         self.list_to_download =[]
         self.thumbnails = []
         self.ischecked = False
-        for i in range(len(self.filelist)):
+        for i in range(len(self.filelist)-1):
             image = Image.open(self.currentPath+"\\search\\"+str(i)+".png")
             image = image.resize((240,180))
             image = ImageTk.PhotoImage(image)
@@ -362,6 +363,7 @@ class Search_GUI:
         self.frame1.destroy()
         self.background1.destroy()
         self.list_to_download.clear()
+        self.ytd.driver.quit()
         
         #self.ytd.clear()
         Main_GUI(self.window)
@@ -423,6 +425,7 @@ class Player_GUI:
 
         files = os.listdir(self.cur_path)
         self.filelist = ['downloads\\'+x for x in files]
+        self.filelist.remove('downloads\\.gitignore')
         self.playlist = [x for x in self.filelist]
         self.label_text = StringVar()
         self.volume = 30
