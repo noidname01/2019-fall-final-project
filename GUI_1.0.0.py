@@ -195,7 +195,7 @@ class Downloader_GUI:
     def Goback(self):
         self.background3.destroy()
         Main_GUI(self.window)
-        self.ytd.driver.quit()
+        
         
     def Goback2(self):
         self.background1.destroy()
@@ -204,6 +204,7 @@ class Downloader_GUI:
         self.vsb.destroy()
         self.list_to_download.clear()
         #self.ytd.clear()
+        self.ytd.driver.quit()
         Downloader_GUI(self.window)
         
     def Download(self):
@@ -363,7 +364,7 @@ class Search_GUI:
         self.frame1.destroy()
         self.background1.destroy()
         self.list_to_download.clear()
-        self.ytd.driver.quit()
+        
         
         #self.ytd.clear()
         Main_GUI(self.window)
